@@ -1,3 +1,5 @@
+--Currently just for storing historical game and player data, will be updated
+
 PRAGMA foreign_keys = ON;
 
 create table Teams (
@@ -39,7 +41,7 @@ create table PlayerGameStats (
     shots_on_goal integer default 0,
 
     penalty_shot_goals integer default 0,
-    penalty_shot_attempts integer default 0
+    penalty_shot_attempts integer default 0,
 
     fouls integer default 0,
     yellow_cards integer default 0,
