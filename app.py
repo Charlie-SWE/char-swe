@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit as st # type: ignore
 from src.components.Colors import PrimaryDarkHex, PrimaryLightHex
 
 # Pages for navbar directory
