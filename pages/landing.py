@@ -1,9 +1,10 @@
 import streamlit as st
+from src.components.Colors import PrimaryDarkHex, PrimaryLightHex
 
 # Initial landing page the outlines our project
 def main():
-    st.title("Welcome to :green[Gaffer]")
-    st.header("The :green[Team Charlie] SWE project!")
+    st.title(f"Welcome to :color[Gaffer]{{foreground={PrimaryLightHex}}}")
+    st.header(f"The :color[Team Charlie]{{foreground={PrimaryDarkHex}}} SWE project!")
 
     st.markdown('''
     Hello!\n
