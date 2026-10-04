@@ -1,5 +1,6 @@
 import streamlit as st # type: ignore
 from src.components.Colors import PrimaryDarkHex, PrimaryLightHex
+from src.components.Settings import settings_button
 
 # Pages for navbar directory
 # Note that within the current structure, the first page listed
@@ -22,6 +23,7 @@ def main():
     global pages
 
     pg = st.navigation(pages)
+    settings_button()
     pg.run()
 
 if __name__ == "__main__":
