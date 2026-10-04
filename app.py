@@ -1,4 +1,5 @@
 import streamlit as st
+from src.components.Colors import PrimaryDarkHex, PrimaryLightHex
 
 # Pages for navbar directory
 # Note that within the current structure, the first page listed
