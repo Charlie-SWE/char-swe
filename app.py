@@ -10,11 +10,12 @@ from src.components.Settings import settings_button
 # [st.Page("pages/[insert file name"), title="[insert title]"]
 pages = {
     "Home": [
-    st.Page("pages/landing.py", title="Welcome")
+        st.Page("pages/landing.py", title="Welcome")
     ],
 
     "Pages": [ # placeholder name, will be changed when we wireframe
-    st.Page("pages/calendar.py", title="Calendar")
+        st.Page("pages/calendar.py", title="Calendar"),
+        st.Page("pages/roster.py", title="Roster"),
     ]
 }
 
