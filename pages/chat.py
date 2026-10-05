@@ -31,7 +31,7 @@ def generate_payload(text):
     return {
         "model": model,
         "input": text,
-        "max_output_tokens": 300,
+        "max_output_tokens": 2048,
         "store": False
     }
         
