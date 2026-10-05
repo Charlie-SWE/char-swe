@@ -66,15 +66,28 @@ def main():
         # Record the prompt
         st.session_state.history.append(mess_prompt)
 
-        # Send request to rocky
-        response = requests.post(url, headers=headers, json=generate_payload(prompt), timeout=300)
-        response.raise_for_status()
+        try:
+            # Send request to rocky
+            response = requests.post(url, headers=headers, json=generate_payload(prompt), timeout=300)
+            response.raise_for_status()
 
-        mess_response = Message(response.json()["output_text"], "ai")
-        mess_response.display()
+            response_json = response.json()
+
+            if "error" in response_json:
+                # Error on Rocky's end.
+                st.error(f"An error occurred when generate a response:\n\n{response_json.error["message"]}")
+            else:
+                # Successful! We display our message to the user.
+                mess_response = Message(response.json()["output_text"], "ai")
+                mess_response.display()
+
+                st.session_state.history.append(mess_response)
+        except requests.exceptions.RequestException as ex:
+            # Error while connecting to Rocky
+            st.error(f"An error occurred when generating a response:\n\n{ex}")
 
         
-        st.session_state.history.append(mess_response)
+            
 
 
 
