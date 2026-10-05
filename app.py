@@ -14,7 +14,8 @@ pages = {
     ],
 
     "Pages": [ # placeholder name, will be changed when we wireframe
-    st.Page("pages/calendar.py", title="Calendar")
+    st.Page("pages/calendar.py", title="Calendar"),
+    st.Page("pages/chat.py", title="Chat")
     ]
 }
 
