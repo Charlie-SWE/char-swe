@@ -1,4 +1,9 @@
 import streamlit as st
+import requests
+import os
+import dotenv
+
+dotenv.load_dotenv()
 
 from src.components.Colors import (
     PrimaryDarkHex,
@@ -7,6 +12,29 @@ from src.components.Colors import (
     SecondaryLightHex,
     SecondaryYellowHex,
 )
+
+
+url = "https://rocky.cs.kent.edu/v1/responses"
+headers = {
+    "Authorization": f"Bearer {os.environ['ROCKY_API_KEY']}"
+}
+
+models_response = requests.get(
+    "https://rocky.cs.kent.edu/v1/models",
+    headers=headers,
+    timeout=30,
+)
+models_response.raise_for_status()
+model = models_response.json()["data"][0]["id"]
+
+def generate_payload(text):
+    return {
+        "model": model,
+        "input": text,
+        "max_output_tokens": 300,
+        "store": False
+    }
+        
 
 class Message:
     def __init__(self, text, type):
@@ -31,15 +59,21 @@ def main():
     prompt = st.chat_input("Ask a question.")
 
     if prompt != None:
-        # Create and display messages for both prompt and response
+        # Create and display messages for the user's prompt
         mess_prompt = Message(prompt, "user")
         mess_prompt.display()
 
-        mess_response = Message(f"Echoed: {prompt}", "ai")
+        # Record the prompt
+        st.session_state.history.append(mess_prompt)
+
+        # Send request to rocky
+        response = requests.post(url, headers=headers, json=generate_payload(prompt), timeout=300)
+        response.raise_for_status()
+
+        mess_response = Message(response.json()["output_text"], "ai")
         mess_response.display()
 
-        # Record the prompt and response
-        st.session_state.history.append(mess_prompt)
+        
         st.session_state.history.append(mess_response)
 
 
