@@ -1,0 +1,38 @@
+name: Discord Issue Notification
+
+on:
+  issues:
+    types: [opened, closed, reopened, edited]
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+                
+            // Pulls issue variables
+            const issue = context.payload.issue;
+            const action = context.payload.action;
+            
+            // Creates the embed in discord
+            const embed = {
+              title: `Issue ${action.toUpperCase()}: ${issue.title}`,
+              description: issue.body || "No description",
+              url: issue.html_url,
+              color: action === 'closed' ? 5814783 : 3066993,
+              fields: [
+                { name: "Author", value: issue.user.login, inline: true },
+                { name: "Action", value: action, inline: true }
+              ]
+            };
+            
+            // Runs the webhook URL
+            await fetch(process.env.WEBHOOK_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ embeds: [embed] })
+            });
+        env:
+          WEBHOOK_URL: ${{ secrets.ISSUES_DISCORD_WEBHOOK }}
