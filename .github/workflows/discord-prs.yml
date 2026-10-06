@@ -12,13 +12,13 @@ jobs:
         with:
           script: |
             
-            # Creates context
+            // Creates context
             const pr = context.payload.pull_request;
             const action = context.payload.action;
             
             let title, description, color;
 
-            # Checks for action occured          
+            // Checks for action occured          
             if (action === 'opened') {
               title = `PR Opened: ${pr.title}`;
               description = pr.body || "No description";
@@ -29,7 +29,7 @@ jobs:
               color = 65280;
             }
             
-            # Gets list of contributors
+            // Gets list of contributors
             const contributors = pr.requested_reviewers
               .map(r => r.login)
               .join(', ') || 'No reviewers';
