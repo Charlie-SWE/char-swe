@@ -7,3 +7,4 @@ Our GitHub repository :)
 2. Run `uv sync` in your terminal
 3. Then run `uv run streamlit run app.py`
 
+ 
