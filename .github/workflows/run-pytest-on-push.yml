@@ -13,9 +13,6 @@ on:
       - "uv.lock"
 
 jobs:
-  # Downloads UV
-  get-uv:
-
   test:
     runs-on: ${{ matrix.os }}
     strategy:
