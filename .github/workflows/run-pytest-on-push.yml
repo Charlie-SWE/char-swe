@@ -1,14 +1,18 @@
 name: Pytest on Push
 
+# Runs on the push or pull request of 
+# A python, yaml, pyproject, and uv lock file
 on:
   push:
     paths:
-      - "**.py"
+      - "**.py" 
+      - "**.yml"
       - "pyproject.toml"
       - "uv.lock"
   pull_request:
     paths:
       - "**.py"
+      - "**.yml"
       - "pyproject.toml"
       - "uv.lock"
 
@@ -19,31 +23,31 @@ jobs:
       fail-fast: false
       matrix:
         os: [macos-latest, ubuntu-latest, windows-latest]
-        python-version: ["3.10", "3.11", "3.12", "3.13", "3.14"]
+        python-version: ["3.14"]
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+      - name: Copies over repo
+        uses: actions/checkout@v7
+
+      - name: Install uv and setup python version
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 
         with:
           python-version: ${{ matrix.python-version }}
-          cache-dependency-path: |
-            pyproject.toml
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 
-
-      - name: Install dependencies
+      - name: Install the project
         run: |
-          uv sync
+          uv sync --locked --all-extras --dev
+
       - name: Run pytest
-        run: uv run pytest
+        run: |
+          uv run pytest
 
   all-tests-pass:
     needs: [test]
     runs-on: ubuntu-latest
     if: always()
     steps:
-      - name: All matrix jobs passed
+      - name: All Pytest Passed
         run: |
           if [ "${{ needs.test.result }}" != "success" ]; then
             exit 1
