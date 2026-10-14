@@ -1,3 +1,9 @@
+# !!!!!!!
+# NEEDS CONVERTED TO NICEGUI
+# Once implemented, need to update __init__.py, src/components/layout.py, and app.py
+# !!!!!!!
+
+
 import streamlit as st
 import requests
 import os
