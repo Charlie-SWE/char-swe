@@ -11,5 +11,5 @@ def frame():
         
         ui.button('Home', icon='home', on_click=lambda: ui.navigate.to('/')).classes('w-full').props('flat align=left').style(f'color: {SecondaryDarkHex}')
         ui.button('Calendar', icon='calendar_month', on_click=lambda: ui.navigate.to('/calendar')).classes('w-full').props('flat align=left').style(f'color: {SecondaryDarkHex}')
-        # ui.button('Chat', icon='smart_toy', on_click=lambda: ui.navigate.to('/chat')).classes('w-full').props('flat align=left').style(f'color: {SecondaryDarkHex}')
+        ui.button('Chat', icon='smart_toy', on_click=lambda: ui.navigate.to('/chat')).classes('w-full').props('flat align=left').style(f'color: {SecondaryDarkHex}')
         ui.button('Settings', icon='settings', on_click=lambda: ui.navigate.to('/settings')).classes('w-full').props('flat align=left').style(f'color: {SecondaryDarkHex}')
