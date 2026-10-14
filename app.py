@@ -1,31 +1,12 @@
-import streamlit as st # type: ignore
-from src.components.Colors import PrimaryDarkHex, PrimaryLightHex
-from src.components.Settings import settings_button
+from nicegui import ui
+from pages import landing, calendar, settings #, chat
 
-# Pages for navbar directory
-# Note that within the current structure, the first page listed
-# will always be executed first.
-#
-# Format: "Category Title": 
-# [st.Page("pages/[insert file name"), title="[insert title]"]
-pages = {
-    "Home": [
-    st.Page("pages/landing.py", title="Welcome")
-    ],
-
-    "Pages": [ # placeholder name, will be changed when we wireframe
-    st.Page("pages/calendar.py", title="Calendar"),
-    st.Page("pages/chat.py", title="Chat")
-    ]
-}
-
-# Navigates to pages in /pages/ as outlined in pages global
 def main():
-    global pages
+    landing.init() # layout now handeled by src/components/Layout.py
+    calendar.init()
+    settings.init()
+    # chat.init()
+    ui.run()
 
-    pg = st.navigation(pages)
-    settings_button()
-    pg.run()
-
-if __name__ == "__main__":
-    main()
+if __name__ in {"__main__", "__mp_main__"}:
+    ui.run()
