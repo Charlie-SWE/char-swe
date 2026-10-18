@@ -112,7 +112,7 @@ def extract_text(data: dict) -> str:
                     parts.append(c.get("text", ""))
     return "".join(parts)
 
-
+#Change both values if you modify max, was having compiler issues with unitialized array -Brendan
 previous_messages = [None] * 10
 max = 10
 current = 0
