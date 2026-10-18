@@ -35,13 +35,37 @@ models_response = requests.get(
 models_response.raise_for_status()
 model = models_response.json()["data"][0]["id"]
 
+
+previous_messages = [None] * 10
+max = 10
+current = 0
+
 def generate_payload(text):
-    return {
+    global previous_messages, max, current
+    if (max == None or current == None):
+        max = 10
+        current = 0
+        previous_messages[0] = text
+    else: 
+        print(previous_messages, max, current, type(max), type(current))
+        previous_messages[current] = text
+        current = (current + 1) % max
+
+    append_str = "\n**Context from previous messages:**\n"
+    for i,v in enumerate(previous_messages):
+        append_str += f"{i+1}. {v}\n"
+
+    text = text + append_str
+    payload = {
         "model": model,
         "input": text,
         "max_output_tokens": 2048,
         "store": False
     }
+
+    print(text)
+    return payload
+
 
 def init():
     @ui.page('/chat')
