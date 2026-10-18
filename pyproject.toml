@@ -11,3 +11,22 @@ dependencies = [
     "python-dotenv",
     "nicegui>=3.18.0",
 ]
+
+[dependency-groups]
+dev = [
+    "black>=26.10.1",
+    "sqlfluff>=4.4.0",
+]
+
+[tool.black]
+line-length = 60
+
+[tool.sqlfluff.core]
+dialect = "sqlite"
+max_line_length = 60
+
+[tool.sqlfluff.indentation]
+tab_space_size = 4
+
+[tool.sqlfluff.rules.capitalisation.keywords]
+capitalisation_policy = "upper"
