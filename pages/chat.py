@@ -113,16 +113,44 @@ def extract_text(data: dict) -> str:
     return "".join(parts)
 
 
-def ask_rocky(history: list[dict]) -> str:
+previous_messages = [None] * 10
+max = 10
+current = 0
+
+def generate_payload(text):
+    global previous_messages, max, current
+    if (max == None or current == None):
+        max = 10
+        current = 0
+        previous_messages[0] = text
+    else: 
+        print(previous_messages, max, current, type(max), type(current))
+        previous_messages[current] = text
+        current = (current + 1) % max
+
+    append_str = "\n**Context from previous messages:**\n"
+    for i,v in enumerate(previous_messages):
+        append_str += f"{i+1}. {v}\n"
+
+    text = text + append_str
     payload = {
         "model": get_model(),
         "instructions": get_context(),
-        "input": history,
+        "input": text,
         "max_output_tokens": 2048,
         "store": False,
     }
+
+    print(text)
+    return payload
+
+
+def ask_rocky(text: str) -> str:
     r = requests.post(
-        f"{BASE_URL}/responses", headers=HEADERS, json=payload, timeout=300
+        f"{BASE_URL}/responses",
+        headers=HEADERS,
+        json=generate_payload(text),
+        timeout=300,
     )
     try:
         data = r.json()
@@ -215,7 +243,7 @@ def init():
             scroll_down()
 
             try:
-                reply = await run.io_bound(ask_rocky, list(history))
+                reply = await run.io_bound(ask_rocky, prompt)
             except requests.exceptions.RequestException:
                 history.pop()
                 ui.notify("Connection error.", type="negative")
