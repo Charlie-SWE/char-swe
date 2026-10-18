@@ -35,7 +35,7 @@ models_response = requests.get(
 models_response.raise_for_status()
 model = models_response.json()["data"][0]["id"]
 
-
+#Change both values if you modify max, was having compiler issues with unitialized array -Brendan
 previous_messages = [None] * 10
 max = 10
 current = 0
