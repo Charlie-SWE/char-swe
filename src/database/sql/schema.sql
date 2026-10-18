@@ -5,7 +5,7 @@ PRAGMA foreign_keys = ON;
 
 CREATE TABLE IF NOT EXISTS teams (
     team_id integer PRIMARY KEY,
-    team_name text NOT NULL
+    team_name text NOT NULL UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS players (
