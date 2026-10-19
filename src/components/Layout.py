@@ -5,7 +5,7 @@ def frame():
     with ui.header().style(f'background-color: {PrimaryDarkHex}'):
         ui.button(on_click=lambda: drawer.toggle(), icon='menu').props('flat').style(f'color: {SecondaryLightHex}')
         ui.label('Gaffer').classes('text-xl').style(f'color: {PrimaryLightHex}')
-
+        ui.image("favicon.svg").classes('w-8')
     with ui.left_drawer().classes('bg-gray-100') as drawer:
         ui.label('Navigation').classes('text-lg').style(f'color: {SecondaryDarkHex}')
         
