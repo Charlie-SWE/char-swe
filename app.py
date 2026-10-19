@@ -16,7 +16,7 @@ def main():
     chat.init()
     view_data.init()
     weather.init()
-    ui.run()
+    ui.run(favicon="favicon.svg")
 
 
 if __name__ in {"__main__", "__mp_main__"}:
