@@ -1,5 +1,5 @@
 import requests
-from datetime import date
+from datetime import date, timedelta
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 GEOCODE_URL = (
@@ -10,9 +10,10 @@ GEOCODE_URL = (
 def main():
     city = "Kent"
     state = "Ohio"
-    day = date.today()
+    start_day = date.today()
+    end_day = date.today() + timedelta(days=1)
 
-    print_weather(city, state, day)
+    get_weather(city, state, start_day, end_day)
     return
 
 
@@ -50,7 +51,15 @@ def city_to_coordinates(city, state):
     )
 
 
-def print_weather(city, state, day):
+def get_weather(city, state, start_day, end_day=None):
+    # If end_day not selected, just pulls the start day data
+    if end_day == None:
+        end_day = start_day
+    if end_day < start_day:
+        raise ValueError(
+            "end_day must be the same as or after start_day"
+        )
+
     coords = city_to_coordinates(city, state)
     lat = coords["latitude"]
     lon = coords["longitude"]
@@ -60,8 +69,10 @@ def print_weather(city, state, day):
         params={
             "latitude": lat,
             "longitude": lon,
-            "start_date": day.isoformat(),
-            "end_date": day.isoformat(),
+            "start_date": start_day.isoformat(),
+            "end_date": end_day.isoformat(),
+            # Pulls like all of the weather stuff
+            "daily": "weather_code,temperature_2m_max,temperature_2m_min,precipitation_sum,wind_speed_10m_max",
             "temperature_unit": "fahrenheit",
             "wind_speed_unit": "mph",
             "precipitation_unit": "inch",
@@ -69,7 +80,33 @@ def print_weather(city, state, day):
         },
         timeout=10,
     )
-    print(response.json())
+
+    r = response.json()
+
+    weather = []
+
+    daily = r["daily"]
+    day_count = len(daily["time"])
+    for i in range(day_count):
+        day_dict = {
+            "date": daily["time"][i],
+            "weather_code": daily["weather_code"][i],
+            "min_temp": daily["temperature_2m_min"][i],
+            "max_temp": daily["temperature_2m_max"][i],
+            "precipitation": daily["precipitation_sum"][i],
+            "wind_speed": daily["wind_speed_10m_max"][i],
+        }
+        weather.append(day_dict)
+
+    all_info_dict = {
+        "latitude": r["latitude"],
+        "longitude": r["longitude"],
+        "timezone": ["timezone"],
+        "elevation": ["elevation"],
+        "weather": weather,
+    }
+
+    return all_info_dict
 
 
 if __name__ == "__main__":
