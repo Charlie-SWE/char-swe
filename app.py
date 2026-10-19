@@ -5,7 +5,7 @@ from starlette.middleware.base import BaseHTTPMiddleware
 
 from src.components.Env import STORAGE_SECRET
 
-from pages import account, landing, calendar, settings, chat
+from pages import account, landing, calendar, settings, chat, view_data
 
 
 # USER AUTHENTICATION
@@ -21,13 +21,14 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if app.storage.user.get('authenticated') or path in public_routes or path.startswith('/_nicegui'):
             return await call_next(request)
         return RedirectResponse(f'/login?redirect_to={path}')
-
+    
 def main():
     landing.init() # layout now handeled by src/components/Layout.py
     calendar.init()
     settings.init()
     chat.init()
     account.init()
+    view_data.init()
     ui.run(storage_secret=STORAGE_SECRET)
 
 if __name__ in {"__main__", "__mp_main__"}:
