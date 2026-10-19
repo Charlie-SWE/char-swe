@@ -5,7 +5,9 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 GEOCODE_URL = (
     "https://geocoding-api.open-meteo.com/v1/search"
 )
-ARCHIVE_URL = "https://archive-api.open-meteo/v1/archive"
+ARCHIVE_URL = (
+    "https://archive-api.open-meteo.com/v1/archive"
+)
 
 
 def main():
