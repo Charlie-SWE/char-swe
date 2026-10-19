@@ -6,8 +6,6 @@
 
 from nicegui import ui, run
 import requests
-import os
-import dotenv
 from src.components.Layout import frame
 from src.components.Colors import (
     PrimaryDarkHex,
@@ -16,15 +14,14 @@ from src.components.Colors import (
     SecondaryLightHex,
     SecondaryYellowHex,
 )
-
-dotenv.load_dotenv()
+from src.components.Env import ROCKY_API_KEY
 
 
 
 
 url = "https://rocky.cs.kent.edu/v1/responses"
 headers = {
-    "Authorization": f"Bearer {os.environ['ROCKY_API_KEY']}"
+    "Authorization": f"Bearer {ROCKY_API_KEY}"
 }
 
 models_response = requests.get(

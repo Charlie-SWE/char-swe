@@ -1,10 +1,16 @@
-from nicegui import ui
+from nicegui import ui, app
 from src.components.Colors import PrimaryDarkHex, PrimaryLightHex, SecondaryLightHex, SecondaryDarkHex
+from src.components.Auth import logout
 
 def frame():
-    with ui.header().style(f'background-color: {PrimaryDarkHex}'):
+    with ui.header().style(f'background-color: {PrimaryDarkHex};'):
         ui.button(on_click=lambda: drawer.toggle(), icon='menu').props('flat').style(f'color: {SecondaryLightHex}')
         ui.label('Gaffer').classes('text-xl').style(f'color: {PrimaryLightHex}')
+
+        # Show for logged-in users only
+        if app.storage.user.get("authenticated"):
+            ui.markdown(f"Logged in as **{app.storage.user.get("id")}**.")
+            ui.button("Logout", on_click=logout)
 
     with ui.left_drawer().classes('bg-gray-100') as drawer:
         ui.label('Navigation').classes('text-lg').style(f'color: {SecondaryDarkHex}')
