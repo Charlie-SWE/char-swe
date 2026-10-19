@@ -1,6 +1,3 @@
-import os
-
-import dotenv
 import requests
 from nicegui import run, ui
 from datetime import date
@@ -12,13 +9,10 @@ from src.components.Colors import (
     SecondaryLightHex,
 )
 from src.components.Layout import frame, page_body, page_header
+from src.components.Env import ROCKY_API_KEY
 from src.services.game_details import get_games
 
-dotenv.load_dotenv()
-
 BASE_URL = "https://rocky.cs.kent.edu/v1"
-
-ROCKY_API_KEY = os.environ.get("ROCKY_API_KEY", "")
 
 # True if the user has a rocky API key
 HAS_KEY = ROCKY_API_KEY != ""
