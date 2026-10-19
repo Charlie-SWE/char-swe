@@ -1,4 +1,5 @@
-from nicegui import ui
+from nicegui import ui, app
+from src.components.Auth import logout
 from src.components.Colors import (
     PrimaryDarkHex,
     PrimaryLightHex,
@@ -95,6 +96,11 @@ def frame(active: str = "home", user: dict | None = None):
             ui.label(initials).classes(
                 "w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm"
             ).style(f"background:{PrimaryLightHex}; color:{SecondaryDarkHex}")
+
+        # Show for logged-in users only
+        if app.storage.user.get("authenticated"):
+            ui.markdown(f"Logged in as **{app.storage.user.get("id")}**.")
+            ui.button("Logout", on_click=logout)
 
     with (
         ui.left_drawer(value=True)

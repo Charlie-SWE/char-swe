@@ -81,4 +81,3 @@ create table PlayerGameStats (
 --     foreign key (team_id) references Teams(team_id),
 --     foreign key (game_id) references Games(game_id)
 -- );
-
