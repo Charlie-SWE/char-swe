@@ -15,7 +15,27 @@ def main():
     end_day = date.today() + timedelta(days=10)
 
     weather = get_weather(city, state, start_day, end_day)
+    print_weather(weather)
     return
+
+
+def print_weather(weather):
+    print(f"""
+    latitude: {weather["latitude"]}
+    longitude: {weather["longitude"]}
+    timezone: {weather["timezone"]}
+    elevation: {weather["elevation"]}
+    """)
+
+    for day in weather["weather"]:
+        print(f"""
+        time: {day["date"]}
+        weather code: {day["weather_code"]}
+        min temperature: {day["min_temp"]}
+        max temperature {day["max_temp"]}
+        precipitation: {day["precipitation"]}
+        wind speed: {day["wind_speed"]}
+        """)
 
 
 # Picks the correct URL based on the day
