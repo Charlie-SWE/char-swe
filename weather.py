@@ -5,16 +5,33 @@ FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
 GEOCODE_URL = (
     "https://geocoding-api.open-meteo.com/v1/search"
 )
+ARCHIVE_URL = "https://archive-api.open-meteo/v1/archive"
 
 
 def main():
     city = "Kent"
     state = "Ohio"
     start_day = date.today()
-    end_day = date.today() + timedelta(days=1)
+    end_day = date.today() + timedelta(days=10)
 
-    get_weather(city, state, start_day, end_day)
+    weather = get_weather(city, state, start_day, end_day)
     return
+
+
+# Picks the correct URL based on the day
+def pick_url(start_day, end_day):
+    today = date.today()
+
+    # Makes sure end date is not more than 16 days ahead
+    if end_day > today + timedelta(days=16):
+        raise ValueError(
+            "The forecast only gives up to 16 days in the future"
+        )
+
+    # Archive URL starts at five day delay
+    if end_day < (today - timedelta(days=5)):
+        return ARCHIVE_URL
+    return FORECAST_URL
 
 
 def city_to_coordinates(city, state):
@@ -64,8 +81,10 @@ def get_weather(city, state, start_day, end_day=None):
     lat = coords["latitude"]
     lon = coords["longitude"]
 
+    url = pick_url(start_day, end_day)
+
     response = requests.get(
-        FORECAST_URL,
+        url,
         params={
             "latitude": lat,
             "longitude": lon,
@@ -81,10 +100,12 @@ def get_weather(city, state, start_day, end_day=None):
         timeout=10,
     )
 
+    # Catches errors
+    response.raise_for_status()
+
     r = response.json()
 
     weather = []
-
     daily = r["daily"]
     day_count = len(daily["time"])
     for i in range(day_count):
@@ -101,8 +122,8 @@ def get_weather(city, state, start_day, end_day=None):
     all_info_dict = {
         "latitude": r["latitude"],
         "longitude": r["longitude"],
-        "timezone": ["timezone"],
-        "elevation": ["elevation"],
+        "timezone": r["timezone"],
+        "elevation": r["elevation"],
         "weather": weather,
     }
 
