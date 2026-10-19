@@ -30,3 +30,7 @@ tab_space_size = 4
 
 [tool.sqlfluff.rules.capitalisation.keywords]
 capitalisation_policy = "upper"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
