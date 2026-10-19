@@ -17,6 +17,7 @@ def frame():
         ui.label("Gaffer").classes("text-xl").style(
             f"color: {PrimaryLightHex}"
         )
+        ui.image("favicon.svg").classes("w-8")
 
     with ui.left_drawer().classes("bg-gray-100") as drawer:
         ui.label("Navigation").classes("text-lg").style(
