@@ -34,3 +34,4 @@ capitalisation_policy = "upper"
 [tool.pytest.ini_options]
 pythonpath = ["."]
 testpaths = ["tests"]
+
