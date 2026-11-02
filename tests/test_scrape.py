@@ -31,7 +31,6 @@ def player(first, last, goals="0", number=7, position="F"):
 
 
 def fake_api(boxscores):
-    """boxscores: game_id -> list of (team_id, [players])."""
 
     def fetch(path):
         if path.startswith("/schedule-alt/"):
@@ -107,9 +106,6 @@ def count(db, table):
     ).fetchone()[0]
 
 
-# ---------- setup ----------
-
-
 def test_ensure_schema_is_safe_to_run_twice(db):
     scrape.ensure_schema(db)
     tables = {
@@ -135,9 +131,6 @@ def test_name_key_ignores_case_and_spacing():
     assert scrape.name_key(
         " ava ", "TODD"
     ) == scrape.name_key("Ava", "Todd")
-
-
-# ---------- importing without duplicates ----------
 
 
 def test_same_player_in_two_games_is_one_row(db):
@@ -228,7 +221,7 @@ def test_importing_same_game_twice_adds_nothing(db):
 def test_failed_game_saves_nothing(db):
     good = player("Ava", "Todd")
     bad = player("Mia", "Cleroux")
-    bad["minutesPlayed"] = "not a number"  # float() fails
+    bad["minutesPlayed"] = "not a number"
     fetch = fake_api({"1": [("10", [good, bad])]})
     index = {}
     with pytest.raises(ValueError):
@@ -251,9 +244,6 @@ def test_index_finds_players_already_in_database(db):
     assert count(db, "Players") == 1
 
 
-# ---------- cleaning up existing duplicates ----------
-
-
 def seed_duplicates(db):
     db.executemany(
         "INSERT INTO Teams VALUES (?, ?)",
@@ -274,8 +264,8 @@ def seed_duplicates(db):
             (1, "AVA", "TODD", None, 9),
             (2, "Ava", "Todd", "D", 9),
             (3, "Ava", "Todd", "def", None),
-            (4, "Sam", "Lee", "M", 4),  # other team
-            (5, "Sam", "Lee", "F", 5),  # this team
+            (4, "Sam", "Lee", "M", 4),
+            (5, "Sam", "Lee", "F", 5),
         ],
     )
     db.executemany(
@@ -326,9 +316,6 @@ def test_dedupe_keeps_all_stats_and_is_repeatable(db):
         " NOT IN (SELECT player_id FROM Players)"
     ).fetchone()[0]
     assert orphans == 0
-
-
-# ---------- whole run ----------
 
 
 def test_main_scrapes_when_empty_then_skips(
@@ -382,3 +369,57 @@ def test_failed_game_is_skipped_not_fatal(db, capsys):
     out = capsys.readouterr().out
     assert "[SKIPPED] Game 1" in out
     assert count(db, "Games") == 1
+
+
+def test_prepare_database_on_new_file(tmp_path):
+    db_file = tmp_path / "new.db"
+    assert scrape.prepare_database(db_file) is True
+    with closing(sqlite3.connect(db_file)) as c:
+        assert count(c, "Games") == 0
+
+
+def test_finished_download_is_marked_complete(tmp_path):
+    fetch = fake_api(
+        {"1": [("10", [player("Ava", "Todd")])]}
+    )
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(db_file, fetch=fetch)
+    assert scrape.prepare_database(db_file) is False
+
+
+def test_interrupted_download_resumes_without_duplicates(
+    tmp_path,
+):
+    good = fake_api(
+        {
+            "1": [("10", [player("Ava", "Todd")])],
+            "2": [("10", [player("AVA", "TODD")])],
+        }
+    )
+
+    def flaky(path):
+        if "/scoreboard/" in path and "09/08" in path:
+            raise RuntimeError("network down")
+        return good(path)
+
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(db_file, fetch=flaky)
+    assert scrape.prepare_database(db_file) is True
+    with closing(sqlite3.connect(db_file)) as c:
+        assert count(c, "Games") == 1
+
+    scrape.fill_database(db_file, fetch=good)
+    assert scrape.prepare_database(db_file) is False
+    with closing(sqlite3.connect(db_file)) as c:
+        assert count(c, "Games") == 2
+        assert count(c, "Players") == 1
+        assert count(c, "PlayerGameStats") == 2
+
+
+def test_empty_schedule_is_not_complete(tmp_path):
+    def no_dates(path):
+        return {"data": {"schedules": {"games": []}}}
+
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(db_file, fetch=no_dates)
+    assert scrape.prepare_database(db_file) is True
