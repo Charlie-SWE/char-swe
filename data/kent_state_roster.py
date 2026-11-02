@@ -6,7 +6,7 @@ roster = [
     (1, "Leah Shaffer", "GK", "Senior"),
     (2, "Samantha Miller", "M", "Senior"),
     (3, "Zsofia Jakab", "F/M", "Freshman"),
-    (4, "Alexa Muth", "Sophomore"),
+    (4, "Alexa Muth", "M", "Sophomore"),
     (5, "Katie Henahan", "M", "Junior"),
     (6, "Mia McLean Mercier", "D", "Freshman"),
     (7, "Kiyomi McCausland", "F", "Senior"),
