@@ -28,15 +28,3 @@ roster = [
     (27, "Mia Cleroux", "F", "Sophomore")
 
 ]
-
-print("Kent State Women's Soccer Roster")
-print("-" * 65)
-
-print(f"{'No.':<6}{'Name':<25}{'Position':<12}{'Year'}")
-print("-" * 65)
-
-for number, name, position, year in roster:
-    print(f"{str(number):<6}{name:<25}{position:<12}{year}")
-
-    print("-" * 65)
-    print("Total Players:", len(roster))

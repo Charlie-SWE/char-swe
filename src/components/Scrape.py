@@ -1,14 +1,16 @@
 """Download the NCAA D1 women's soccer season into data/gaffer.db.
 
-Run from the project root:
-    uv run python -m src.components.Scrape           # fill the database if empty
+`uv run app.py` does this automatically on first run. By hand:
+    uv run python -m src.components.Scrape           # fill the database if needed
     uv run python -m src.components.Scrape --update  # also fetch games not saved yet
 
 Every run:
 1. Creates the tables from data/schema.sql if they don't exist.
 2. Merges duplicate player rows already in the database.
-3. Downloads the season if there are no games yet (or with --update):
-   schedule -> each day's scoreboard -> each game's box score.
+3. Downloads the season unless a full download already finished
+   (or with --update): schedule -> each day's scoreboard -> each
+   game's box score. A finished download is recorded in the
+   database's PRAGMA user_version.
 
 The API gives players no ID, so a player is identified by their
 team plus their name, ignoring capitalisation and extra spaces.
@@ -417,7 +419,7 @@ def scrape_season(db, season=SEASON, fetch=get_api_data):
     )
     if not dates:
         print("No schedule dates were returned.")
-        return
+        return False
 
     print(
         f"Found {len(dates)} scheduled dates for {season}."
@@ -477,6 +479,65 @@ def scrape_season(db, season=SEASON, fetch=get_api_data):
     print(f"Date requests that failed: {failed_dates}")
     print(f"New players inserted: {new_players}")
     print(f"New player-stat rows inserted: {new_stats}")
+    # Complete = every date was fetched. Individual games the
+    # API has no box score for are skipped and don't count.
+    return failed_dates == 0
+
+
+def is_complete(db):
+    """True once a full season download has finished."""
+    return (
+        db.execute("PRAGMA user_version").fetchone()[0] >= 1
+    )
+
+
+def mark_complete(db):
+    db.execute("PRAGMA user_version = 1")
+
+
+def prepare_database(db_path=DB_PATH):
+    """Create any missing tables.
+
+    Returns True if the season still needs downloading.
+    """
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(db_path)) as db:
+        ensure_schema(db)
+        return not is_complete(db)
+
+
+def fill_database(
+    db_path=DB_PATH, fetch=get_api_data, update=False
+):
+    """Download the season unless that's already been done.
+
+    An unfinished download (e.g. the app was closed partway)
+    picks up where it left off, since saved games are skipped.
+    """
+    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
+    with closing(sqlite3.connect(db_path)) as db:
+        ensure_schema(db)
+        db.execute("PRAGMA foreign_keys = ON")
+
+        merged = dedupe_players(db)
+        if merged:
+            print(f"Merged {merged} duplicate player rows.")
+
+        if is_complete(db) and not update:
+            print(
+                f"Database already has {game_count(db)} games."
+                " Run with --update to fetch missing games."
+            )
+            return
+
+        if scrape_season(db, fetch=fetch):
+            mark_complete(db)
+        else:
+            print(
+                "Download incomplete; it will continue"
+                " on the next run."
+            )
+        print(f"Database: {db_path}")
 
 
 def main(argv=None, db_path=DB_PATH, fetch=get_api_data):
@@ -487,26 +548,7 @@ def main(argv=None, db_path=DB_PATH, fetch=get_api_data):
         help="fetch games not yet in the database",
     )
     args = parser.parse_args(argv)
-
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    with closing(sqlite3.connect(db_path)) as db:
-        ensure_schema(db)
-        db.execute("PRAGMA foreign_keys = ON")
-
-        merged = dedupe_players(db)
-        if merged:
-            print(f"Merged {merged} duplicate player rows.")
-
-        count = game_count(db)
-        if count and not args.update:
-            print(
-                f"Database already has {count} games."
-                " Run with --update to fetch missing games."
-            )
-            return
-
-        scrape_season(db, fetch=fetch)
-        print(f"Database: {db_path}")
+    fill_database(db_path, fetch=fetch, update=args.update)
 
 
 if __name__ == "__main__":

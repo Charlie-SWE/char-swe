@@ -3,7 +3,7 @@ from contextlib import closing
 
 from nicegui import run, ui
 from src.components.Layout import frame
-from data.kent_state_roster import roster
+from src.components.Scrape import is_complete
 from src.services.query_builder import (
     COLUMNS,
     DB_PATH,
@@ -29,42 +29,14 @@ def init():
         frame()
         ui.label('View Player Data').classes('text-4xl font-bold')
 
-        #player names from roster
-        players = []
-        for player in roster:
-            players.append(player[1])
-
-        def show_player(e):
-            for player in roster:
-                if player[1] == e.value:
-                    number = player[0]
-
-                    if len(player) == 4:
-                        position = player[2]
-                        year = player[3]
-                    else:
-                        position = 'Not provided'
-                        year = player[2]
-                    player_info.set_text(
-                         f'Number: {number} | Position: {position} | Year: {year}'
-                    )
-
-        ui.select(
-            options=players,
-            label='Select a Player',
-            on_change=show_player
-        ) 
-
-        player_info = ui.label('Select a player to view their information')
-
-        # search the scraped database (src/services/query_builder.py)
-        ui.separator()
-        ui.label("Search Player Stats").classes(
-            "text-2xl font-bold"
-        )
-
         with closing(sqlite3.connect(DB_PATH)) as conn:
             teams = list_teams(conn)
+            downloading = not is_complete(conn)
+        if downloading:
+            ui.label(
+                "Game data is still downloading in the"
+                " background. Results may be incomplete."
+            ).classes("text-orange-600")
         default_team = next(
             (
                 team_id
@@ -130,6 +102,12 @@ def init():
                 return
 
             with results:
+                if not rows:
+                    ui.label(
+                        "No matching players found in the"
+                        " scraped game data."
+                    ).classes("text-gray-500")
+                    return
                 ui.label(f"{len(rows)} row(s)")
                 ui.table(
                     columns=[

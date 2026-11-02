@@ -19,7 +19,6 @@ SCHEMA = (
 
 @pytest.fixture
 def conn():
-    """Small in-memory copy of the real schema."""
     c = sqlite3.connect(":memory:")
     c.executescript(SCHEMA)
     c.executemany(
@@ -42,7 +41,6 @@ def conn():
         " home_team_id, away_team_id) VALUES (?, ?, ?, ?)",
         [(1, "2026-09-01", 1, 2), (2, "2026-09-08", 2, 1)],
     )
-    # player, game, team, goals, assists
     stats = [
         (1, 1, 1, 0, 0),
         (2, 1, 1, 1, 2),
@@ -65,9 +63,6 @@ def rows_for(conn, **kwargs):
         PlayerFilters(**kwargs)
     )
     return run_query(conn, sql, params)
-
-
-# ---------- the query itself ("authenticity") ----------
 
 
 def test_exact_translation():
@@ -161,12 +156,7 @@ def test_every_option_compiles_against_schema(
             order_by="assists",
         )
     )
-    # EXPLAIN parses and plans without running; it raises
-    # if a table or column does not exist.
     conn.execute("EXPLAIN " + sql, params)
-
-
-# ---------- the data that comes back ----------
 
 
 def test_returns_selected_columns_in_order(conn):
@@ -215,7 +205,6 @@ def test_stat_totals(conn):
     assert by_name["Miller"]["games"] == 2
     assert by_name["Miller"]["goals"] == 2
     assert by_name["Miller"]["assists"] == 2
-    # Players with no games still appear, with zeros.
     assert by_name["Shaffer"]["games"] == 0
     assert by_name["Shaffer"]["goals"] == 0
 
