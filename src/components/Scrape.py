@@ -22,6 +22,7 @@ import http.client
 import json
 import re
 import sqlite3
+import time
 from contextlib import closing
 from datetime import datetime
 from pathlib import Path
@@ -37,19 +38,43 @@ SEASON = 2025
 # ---------- API ----------
 
 
-def get_api_data(path):
+RETRY_DELAYS = (2, 5, 15)  # seconds between attempts
+
+
+class TemporaryAPIError(RuntimeError):
+    pass
+
+
+def _request(path):
     conn = http.client.HTTPSConnection(API_HOST, timeout=20)
     try:
         conn.request("GET", path)
         response = conn.getresponse()
         body = response.read().decode()
-        if response.status != 200:
-            raise RuntimeError(
-                f"API request failed ({response.status}): {path}"
-            )
-        return json.loads(body)
+    except (OSError, http.client.HTTPException) as exc:
+        raise TemporaryAPIError(f"{exc}: {path}") from exc
     finally:
         conn.close()
+
+    if response.status == 429 or response.status >= 500:
+        raise TemporaryAPIError(
+            f"API request failed ({response.status}): {path}"
+        )
+    if response.status != 200:
+        raise RuntimeError(
+            f"API request failed ({response.status}): {path}"
+        )
+    return json.loads(body)
+
+
+def get_api_data(path, sleep=time.sleep):
+    """GET a path, retrying busy-server and network errors."""
+    for delay in RETRY_DELAYS:
+        try:
+            return _request(path)
+        except TemporaryAPIError:
+            sleep(delay)
+    return _request(path)
 
 
 # ---------- small helpers ----------

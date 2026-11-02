@@ -423,3 +423,43 @@ def test_empty_schedule_is_not_complete(tmp_path):
     db_file = tmp_path / "test.db"
     scrape.fill_database(db_file, fetch=no_dates)
     assert scrape.prepare_database(db_file) is True
+
+
+def test_retries_temporary_api_errors(monkeypatch):
+    attempts = []
+
+    def flaky(path):
+        attempts.append(path)
+        if len(attempts) < 3:
+            raise scrape.TemporaryAPIError("502")
+        return {"ok": True}
+
+    monkeypatch.setattr(scrape, "_request", flaky)
+    waits = []
+    assert scrape.get_api_data(
+        "/x", sleep=waits.append
+    ) == {"ok": True}
+    assert len(attempts) == 3
+    assert waits == [2, 5]
+
+
+def test_gives_up_after_last_retry(monkeypatch):
+    def always_down(path):
+        raise scrape.TemporaryAPIError("502")
+
+    monkeypatch.setattr(scrape, "_request", always_down)
+    with pytest.raises(scrape.TemporaryAPIError):
+        scrape.get_api_data("/x", sleep=lambda s: None)
+
+
+def test_does_not_retry_not_found(monkeypatch):
+    attempts = []
+
+    def not_found(path):
+        attempts.append(path)
+        raise RuntimeError("404")
+
+    monkeypatch.setattr(scrape, "_request", not_found)
+    with pytest.raises(RuntimeError):
+        scrape.get_api_data("/x", sleep=lambda s: None)
+    assert len(attempts) == 1
