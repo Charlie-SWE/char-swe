@@ -3,7 +3,7 @@ from contextlib import closing
 
 from nicegui import run, ui
 from src.components.Layout import frame
-from src.components.Scrape import is_complete
+from src.components.Scrape import downloading
 from src.services.query_builder import (
     COLUMNS,
     DB_PATH,
@@ -31,8 +31,7 @@ def init():
 
         with closing(sqlite3.connect(DB_PATH)) as conn:
             teams = list_teams(conn)
-            downloading = not is_complete(conn)
-        if downloading:
+        if downloading.is_set():
             ui.label(
                 "Game data is still downloading in the"
                 " background. Results may be incomplete."
