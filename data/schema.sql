@@ -57,6 +57,12 @@ create table PlayerGameStats (
     foreign key (team_id) references Teams(team_id)
 );
 
+-- seasons the scraper has fully downloaded (src/components/Scrape.py)
+create table ScrapedSeasons (
+    season integer primary key,
+    completed_at text not null
+);
+
 -- create table TeamGameStats (
 --     team_id integer not null,
 --     game_id integer not null,

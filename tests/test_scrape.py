@@ -1,5 +1,6 @@
 import sqlite3
 from contextlib import closing
+from datetime import date
 
 import pytest
 
@@ -30,9 +31,12 @@ def player(first, last, goals="0", number=7, position="F"):
     }
 
 
-def fake_api(boxscores):
+def fake_api(boxscores, states=None, calls=None):
+    states = states or {}
 
     def fetch(path):
+        if calls is not None:
+            calls.append(path)
         if path.startswith("/schedule-alt/"):
             return {
                 "data": {
@@ -52,7 +56,13 @@ def fake_api(boxscores):
             )
             return {
                 "games": [
-                    {"game": game(gid, day)}
+                    {
+                        "game": game(
+                            gid,
+                            day,
+                            states.get(gid, "final"),
+                        )
+                    }
                     for gid in boxscores
                     if (gid == "1") == (day == "09/01/2025")
                 ]
@@ -85,19 +95,41 @@ def fake_api(boxscores):
                 ],
             }
         return {
-            "contests": [{"location": {"city": "Kent"}}]
+            "contests": [
+                {
+                    "location": {"city": "Kent"},
+                    "teams": [
+                        {
+                            "teamId": "10",
+                            "isHome": True,
+                            "nameFull": "Kent State",
+                        },
+                        {
+                            "teamId": "20",
+                            "isHome": False,
+                            "nameFull": "Akron",
+                        },
+                    ],
+                }
+            ]
         }
 
     return fetch
 
 
-def game(game_id, day="09/01/2025"):
+def game(game_id, day="09/01/2025", state="final"):
+    played = state == "final"
     return {
         "gameID": game_id,
         "startDate": day,
-        "home": {"score": "2"},
-        "away": {"score": "1"},
+        "gameState": state,
+        "home": {"score": "2" if played else ""},
+        "away": {"score": "1" if played else ""},
     }
+
+
+OFF_SEASON = date(2026, 3, 1)
+IN_SEASON = date(2025, 9, 5)
 
 
 def count(db, table):
@@ -318,44 +350,53 @@ def test_dedupe_keeps_all_stats_and_is_repeatable(db):
     assert orphans == 0
 
 
-def test_main_scrapes_when_empty_then_skips(
+def two_games():
+    return {
+        "1": [("10", [player("Ava", "Todd")])],
+        "2": [("10", [player("AVA", "TODD")])],
+    }
+
+
+def test_downloads_everything_then_is_up_to_date(
     tmp_path, capsys
 ):
-    fetch = fake_api(
-        {
-            "1": [("10", [player("Ava", "Todd")])],
-            "2": [("10", [player("AVA", "TODD")])],
-        }
-    )
+    calls = []
+    fetch = fake_api(two_games(), calls=calls)
     db_file = tmp_path / "test.db"
 
-    scrape.main([], db_path=db_file, fetch=fetch)
+    scrape.fill_database(
+        db_file, fetch=fetch, today=OFF_SEASON
+    )
     with closing(sqlite3.connect(db_file)) as c:
         assert count(c, "Games") == 2
         assert count(c, "Players") == 1
+        assert scrape.finished_seasons(c) == {
+            2023,
+            2024,
+            2025,
+        }
 
-    scrape.main([], db_path=db_file, fetch=fetch)
-    assert "already has 2 games" in capsys.readouterr().out
-
-
-def test_update_skips_saved_games(tmp_path, capsys):
-    calls = []
-    inner = fake_api(
-        {"1": [("10", [player("Ava", "Todd")])]}
-    )
-
-    def fetch(path):
-        calls.append(path)
-        return inner(path)
-
-    db_file = tmp_path / "test.db"
-    scrape.main([], db_path=db_file, fetch=fetch)
     calls.clear()
-    scrape.main(["--update"], db_path=db_file, fetch=fetch)
-    assert not any("boxscore" in c for c in calls)
-    assert (
-        "Already in database: 1" in capsys.readouterr().out
+    scrape.fill_database(
+        db_file, fetch=fetch, today=OFF_SEASON
     )
+    assert calls == []
+    assert "up to date" in capsys.readouterr().out
+
+
+def test_update_rechecks_without_refetching_games(tmp_path):
+    calls = []
+    fetch = fake_api(two_games(), calls=calls)
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(
+        db_file, fetch=fetch, today=OFF_SEASON
+    )
+    calls.clear()
+    scrape.fill_database(
+        db_file, fetch=fetch, update=True, today=OFF_SEASON
+    )
+    assert any("/scoreboard/" in c for c in calls)
+    assert not any(c.startswith("/game/") for c in calls)
 
 
 def test_failed_game_is_skipped_not_fatal(db, capsys):
@@ -365,7 +406,7 @@ def test_failed_game_is_skipped_not_fatal(db, capsys):
             "2": [("10", [player("Ava", "Todd")])],
         }
     )
-    scrape.scrape_season(db, fetch=fetch)
+    scrape.scrape_season(db, 2025, fetch, today=OFF_SEASON)
     out = capsys.readouterr().out
     assert "[SKIPPED] Game 1" in out
     assert count(db, "Games") == 1
@@ -373,29 +414,89 @@ def test_failed_game_is_skipped_not_fatal(db, capsys):
 
 def test_prepare_database_on_new_file(tmp_path):
     db_file = tmp_path / "new.db"
-    assert scrape.prepare_database(db_file) is True
+    assert (
+        scrape.prepare_database(db_file, OFF_SEASON) is True
+    )
     with closing(sqlite3.connect(db_file)) as c:
         assert count(c, "Games") == 0
 
 
-def test_finished_download_is_marked_complete(tmp_path):
-    fetch = fake_api(
-        {"1": [("10", [player("Ava", "Todd")])]}
-    )
+def test_finished_seasons_are_not_downloaded_again(
+    tmp_path,
+):
+    fetch = fake_api(two_games())
     db_file = tmp_path / "test.db"
-    scrape.fill_database(db_file, fetch=fetch)
-    assert scrape.prepare_database(db_file) is False
+    scrape.fill_database(
+        db_file, fetch=fetch, today=OFF_SEASON
+    )
+    assert (
+        scrape.prepare_database(db_file, OFF_SEASON)
+        is False
+    )
+
+
+def test_current_season_is_always_refreshed(tmp_path):
+    fetch = fake_api(two_games())
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(
+        db_file, fetch=fetch, today=IN_SEASON
+    )
+    with closing(sqlite3.connect(db_file)) as c:
+        assert 2025 not in scrape.finished_seasons(c)
+    assert (
+        scrape.prepare_database(db_file, IN_SEASON) is True
+    )
+
+
+def test_upcoming_game_saved_without_score_then_filled_in(
+    tmp_path,
+):
+    calls = []
+    db_file = tmp_path / "test.db"
+    before = fake_api(
+        two_games(), states={"2": "pre"}, calls=calls
+    )
+    scrape.fill_database(
+        db_file, fetch=before, today=IN_SEASON
+    )
+    assert "/game/2/boxscore" not in calls
+    with closing(sqlite3.connect(db_file)) as c:
+        assert c.execute(
+            "SELECT home_score, away_score FROM Games"
+            " WHERE game_id = 2"
+        ).fetchone() == (None, None)
+        assert (
+            c.execute(
+                "SELECT COUNT(*) FROM PlayerGameStats"
+                " WHERE game_id = 2"
+            ).fetchone()[0]
+            == 0
+        )
+
+    calls.clear()
+    scrape.fill_database(
+        db_file, fetch=before, today=date(2025, 9, 7)
+    )
+    assert not any(c.startswith("/game/") for c in calls)
+
+    after = fake_api(two_games())
+    scrape.fill_database(
+        db_file, fetch=after, today=date(2025, 9, 10)
+    )
+    with closing(sqlite3.connect(db_file)) as c:
+        assert c.execute(
+            "SELECT home_score, away_score FROM Games"
+            " WHERE game_id = 2"
+        ).fetchone() == (2, 1)
+        assert count(c, "Games") == 2
+        assert count(c, "PlayerGameStats") == 2
+        assert count(c, "Players") == 1
 
 
 def test_interrupted_download_resumes_without_duplicates(
     tmp_path,
 ):
-    good = fake_api(
-        {
-            "1": [("10", [player("Ava", "Todd")])],
-            "2": [("10", [player("AVA", "TODD")])],
-        }
-    )
+    good = fake_api(two_games())
 
     def flaky(path):
         if "/scoreboard/" in path and "09/08" in path:
@@ -403,26 +504,130 @@ def test_interrupted_download_resumes_without_duplicates(
         return good(path)
 
     db_file = tmp_path / "test.db"
-    scrape.fill_database(db_file, fetch=flaky)
-    assert scrape.prepare_database(db_file) is True
+    scrape.fill_database(
+        db_file, fetch=flaky, today=OFF_SEASON
+    )
+    assert (
+        scrape.prepare_database(db_file, OFF_SEASON) is True
+    )
     with closing(sqlite3.connect(db_file)) as c:
         assert count(c, "Games") == 1
 
-    scrape.fill_database(db_file, fetch=good)
-    assert scrape.prepare_database(db_file) is False
+    scrape.fill_database(
+        db_file, fetch=good, today=OFF_SEASON
+    )
+    assert (
+        scrape.prepare_database(db_file, OFF_SEASON)
+        is False
+    )
     with closing(sqlite3.connect(db_file)) as c:
         assert count(c, "Games") == 2
         assert count(c, "Players") == 1
         assert count(c, "PlayerGameStats") == 2
 
 
-def test_empty_schedule_is_not_complete(tmp_path):
+def test_empty_past_season_counts_as_finished(db):
     def no_dates(path):
         return {"data": {"schedules": {"games": []}}}
 
+    assert scrape.scrape_season(
+        db, 2024, no_dates, OFF_SEASON
+    )
+    assert not scrape.scrape_season(
+        db, 2025, no_dates, IN_SEASON
+    )
+
+
+def test_dates_from_another_season_are_ignored(db):
+    calls = []
+    fetch = fake_api(two_games(), calls=calls)
+    scrape.scrape_season(db, 2026, fetch, date(2026, 9, 1))
+    assert not any("/scoreboard/" in c for c in calls)
+    assert count(db, "Games") == 0
+
+
+@pytest.mark.parametrize(
+    "today, season",
+    [
+        (date(2026, 11, 1), 2026),
+        (date(2026, 7, 1), 2026),
+        (date(2026, 6, 30), 2025),
+        (date(2026, 1, 15), 2025),
+    ],
+)
+def test_current_season(today, season):
+    assert scrape.current_season(today) == season
+
+
+def test_seasons_start_at_first_season():
+    assert scrape.seasons_up_to(date(2026, 11, 1)) == [
+        2023,
+        2024,
+        2025,
+        2026,
+    ]
+
+
+def test_reset_database_empties_everything(tmp_path):
     db_file = tmp_path / "test.db"
-    scrape.fill_database(db_file, fetch=no_dates)
-    assert scrape.prepare_database(db_file) is True
+    scrape.fill_database(
+        db_file,
+        fetch=fake_api(two_games()),
+        today=OFF_SEASON,
+    )
+    scrape.reset_database(db_file)
+    with closing(sqlite3.connect(db_file)) as c:
+        for table in scrape.TABLES:
+            assert count(c, table) == 0
+    assert (
+        scrape.prepare_database(db_file, OFF_SEASON) is True
+    )
+
+
+def test_reset_works_while_another_connection_is_open(
+    tmp_path,
+):
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(
+        db_file,
+        fetch=fake_api(two_games()),
+        today=OFF_SEASON,
+    )
+    with closing(sqlite3.connect(db_file)) as other:
+        other.execute(
+            "SELECT COUNT(*) FROM Games"
+        ).fetchone()
+        scrape.reset_database(db_file)
+        assert count(other, "Games") == 0
+
+
+def test_main_reset_flag(tmp_path, monkeypatch):
+    db_file = tmp_path / "test.db"
+    scrape.fill_database(
+        db_file,
+        fetch=fake_api(two_games()),
+        today=OFF_SEASON,
+    )
+    wiped = []
+    monkeypatch.setattr(
+        scrape, "fill_database", lambda *a, **k: None
+    )
+    monkeypatch.setattr(
+        scrape,
+        "reset_database",
+        lambda path: wiped.append(path),
+    )
+    scrape.main(["--reset"], db_path=db_file)
+    assert wiped == [db_file]
+
+
+def test_downloading_flag_is_cleared_after_run(tmp_path):
+    scrape.fill_database(
+        tmp_path / "test.db",
+        fetch=fake_api(two_games()),
+        today=OFF_SEASON,
+    )
+    assert not scrape.downloading.is_set()
 
 
 def test_retries_temporary_api_errors(monkeypatch):
@@ -437,10 +642,10 @@ def test_retries_temporary_api_errors(monkeypatch):
     monkeypatch.setattr(scrape, "_request", flaky)
     waits = []
     assert scrape.get_api_data(
-        "/x", sleep=waits.append
+        "/x", pause=waits.append
     ) == {"ok": True}
     assert len(attempts) == 3
-    assert waits == [2, 5]
+    assert waits == list(scrape.RETRY_DELAYS[:2])
 
 
 def test_gives_up_after_last_retry(monkeypatch):
@@ -449,7 +654,7 @@ def test_gives_up_after_last_retry(monkeypatch):
 
     monkeypatch.setattr(scrape, "_request", always_down)
     with pytest.raises(scrape.TemporaryAPIError):
-        scrape.get_api_data("/x", sleep=lambda s: None)
+        scrape.get_api_data("/x", pause=lambda s: None)
 
 
 def test_does_not_retry_not_found(monkeypatch):
@@ -461,5 +666,106 @@ def test_does_not_retry_not_found(monkeypatch):
 
     monkeypatch.setattr(scrape, "_request", not_found)
     with pytest.raises(RuntimeError):
-        scrape.get_api_data("/x", sleep=lambda s: None)
+        scrape.get_api_data("/x", pause=lambda s: None)
     assert len(attempts) == 1
+
+
+def test_pause_holds_back_every_request(monkeypatch):
+    clock = [100.0]
+    slept = []
+    monkeypatch.setattr(
+        scrape.time, "monotonic", lambda: clock[0]
+    )
+    monkeypatch.setattr(scrape.time, "sleep", slept.append)
+    monkeypatch.setattr(scrape, "_next_request_at", 0.0)
+    scrape.pause_all_requests(30)
+    scrape._wait_for_turn()
+    assert slept == [30]
+
+
+def test_requests_are_spaced_out(monkeypatch):
+    clock = [100.0]
+    slept = []
+    monkeypatch.setattr(
+        scrape.time, "monotonic", lambda: clock[0]
+    )
+    monkeypatch.setattr(scrape.time, "sleep", slept.append)
+    monkeypatch.setattr(scrape, "_next_request_at", 0.0)
+    scrape._wait_for_turn()
+    scrape._wait_for_turn()
+    assert slept == [
+        pytest.approx(scrape.MIN_SECONDS_BETWEEN_REQUESTS)
+    ]
+
+
+def test_newest_season_downloads_first(db):
+    assert scrape.seasons_to_download(
+        db, date(2026, 11, 1)
+    ) == [
+        2026,
+        2025,
+        2024,
+        2023,
+    ]
+
+
+def test_newest_dates_download_first(db):
+    calls = []
+    scrape.scrape_season(
+        db,
+        2025,
+        fake_api(two_games(), calls=calls),
+        OFF_SEASON,
+    )
+    days = [c for c in calls if "/scoreboard/" in c]
+    assert "2025/09/08" in days[0]
+    assert "2025/09/01" in days[1]
+
+
+def test_past_dates_before_upcoming_dates(tmp_path):
+    calls = []
+    fetch = fake_api(two_games(), calls=calls)
+    scrape.fill_database(
+        tmp_path / "test.db", fetch=fetch, today=IN_SEASON
+    )
+    days = [c for c in calls if "/scoreboard/" in c]
+    assert "2025/09/01" in days[0]
+    assert "2025/09/08" in days[1]
+
+
+def test_every_seasons_past_before_any_future(
+    tmp_path, monkeypatch
+):
+    order = []
+
+    def record(db, season, fetch, today, part="all"):
+        order.append((season, part))
+        return False
+
+    monkeypatch.setattr(scrape, "scrape_season", record)
+    scrape.fill_database(
+        tmp_path / "test.db",
+        fetch=lambda p: {},
+        today=date(2026, 11, 1),
+    )
+    assert order == [
+        (2026, "past"),
+        (2025, "past"),
+        (2024, "past"),
+        (2023, "past"),
+        (2026, "future"),
+    ]
+
+
+def test_future_part_skips_past_dates(db):
+    calls = []
+    scrape.scrape_season(
+        db,
+        2025,
+        fake_api(two_games(), calls=calls),
+        IN_SEASON,
+        part="future",
+    )
+    days = [c for c in calls if "/scoreboard/" in c]
+    assert len(days) == 1
+    assert "2025/09/08" in days[0]
