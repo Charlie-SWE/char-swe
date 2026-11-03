@@ -4,10 +4,12 @@ import xgboost as xgb
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import mean_squared_error
 
+filepath = "../../data/gaffer.db"
+
 def db_query(x_cols: str, y_col: str) -> pd.DataFrame:
     query = f"SELECT {x_cols}, {y_col} FROM PlayerGameStats"
     
-    with sqlite3.connect("../../data/gaffer.db") as conn:
+    with sqlite3.connect(filepath) as conn:
         df = pd.read_sql_query(query, conn)
     
     return df
