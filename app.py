@@ -9,6 +9,7 @@ from pages import (
     chat,
     view_data,
     weather,
+    xgboost,
 )
 
 
@@ -26,6 +27,7 @@ def main():
     app.add_static_files("/assets", "assets")
 
     # Loads the favicon
+    xgboost.init()
     ui.run(favicon="favicon.svg")
 
 
