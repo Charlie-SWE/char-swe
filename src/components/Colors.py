@@ -1,6 +1,6 @@
 # RGB 
 PrimaryDark = (0, 57, 118)
-PrimaryLight = (235, 171, 32)
+PrimaryLight = (239, 171, 0)
 
 SecondaryLight = (44, 142, 206)
 SecondaryDark = (0, 41, 95)
