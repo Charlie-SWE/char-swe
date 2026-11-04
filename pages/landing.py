@@ -1,6 +1,6 @@
 from nicegui import ui
 from src.components.Layout import frame, page_header, page_body
-from src.components.Colors import PrimaryDarkHex, PrimaryLightHex, SecondaryDarkHex, SecondaryYellowHex
+from src.components.Colors import PrimaryDarkHex, PrimaryLightHex, SecondaryDarkHex, SecondaryYellowHex, SecondaryLightHex
 
 FEATURES = [
     ("groups", "Plan the lineup",
@@ -37,7 +37,6 @@ def init(get_user=lambda: None):
         with page_body():
             page_header("OVERVIEW", "Home")
 
-            # Hero
             with ui.row().classes("w-full rounded-2xl p-10 gap-10 items-center no-wrap").style(
                 f"background:{PrimaryDarkHex}"
             ):
@@ -97,7 +96,7 @@ def init(get_user=lambda: None):
                     for n, title, tags in PIPELINE:
                         with ui.column().classes("rounded-xl p-4 gap-2").style("background:#F7F8FA"):
                             with ui.row().classes("items-center gap-2"):
-                                ui.label(n).classes("font-mono-label").style("color:#2C8ECD")
+                                ui.label(n).classes("font-mono-label").style(f"color:{SecondaryLightHex}")
                                 ui.label(title).classes("text-sm font-semibold").style(f"color:{SecondaryDarkHex}")
                             with ui.row().classes("gap-1"):
                                 for t in tags:
