@@ -26,9 +26,10 @@ class XGBoostModel:
 
     def train_model(self):
         self.model.fit(self.X_train, self.y_train)
+        # insert adding columns and rows as metadata
 
     def test_model(self) -> float:
-        predictions = self.model.predict(self.X_test)k
+        predictions = self.model.predict(self.X_test)
         mse = mean_squared_error(self.y_test, predictions)
         return mse
 
@@ -37,3 +38,4 @@ class XGBoostModel:
 
     def save_model(self, filepath: str = 'player_goals_xgb.json'):
         self.model.save_model(filepath)
+        # insert saving columns and rows as metadata (or somewhere in src)
