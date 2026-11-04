@@ -6,6 +6,7 @@ from pages import (
     chat,
     view_data,
     weather,
+    xgboost,
 )
 
 
@@ -16,6 +17,7 @@ def main():
     chat.init()
     view_data.init()
     weather.init()
+    xgboost.init()
     ui.run(favicon="favicon.svg")
 
 

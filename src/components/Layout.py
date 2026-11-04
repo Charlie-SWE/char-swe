@@ -60,6 +60,13 @@ def frame():
             f"color: {SecondaryDarkHex}"
         )
         ui.button(
+            "XGBoost",
+            icon="bar_chart",
+            on_click=lambda: ui.navigate.to("/xgboost"),
+        ).classes("w-full").props("flat align=left").style(
+            f"color: {SecondaryDarkHex}"
+        )
+        ui.button(
             "Settings",
             icon="settings",
             on_click=lambda: ui.navigate.to("/settings"),
