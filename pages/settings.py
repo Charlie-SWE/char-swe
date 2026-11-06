@@ -11,12 +11,12 @@ def init():
         with ui.column().classes("w-full max-w-2xl gap-4"):
             with ui.card().classes("w-full"):
                 ui.label("Profile").classes("text-xl font-bold")
-                ui.button("Edit Username", on_click=lambda: ui.notify("You clicked me!")
+                ui.button("Edit Username", on_click=lambda: ui.notify("You clicked me!"))
 
             with ui.card().classes("w-full"):
                 ui.label("Account").classes("text-xl font-bold")
-                ui.button("Change Password", on_click=lambda: ui.notify("You clicked me!")
-                ui.button("Delete Account", on_click=lambda: ui.notify("You clicked me!")
+                ui.button("Change Password", on_click=lambda: ui.notify("You clicked me!"))
+                ui.button("Delete Account", on_click=lambda: ui.notify("You clicked me!"))
 
             with ui.card().classes("w-full"):
                 ui.label("Appearance").classes("text-xl font-bold")
