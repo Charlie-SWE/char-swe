@@ -4,6 +4,8 @@ from src.components.Layout import frame
 def init():
     @ui.page('/settings')
     def settings_page():
+        dark = ui.dark_mode(False)
+        
         frame()
         ui.label("Settings").classes("text-4xl font-bold")
         with ui.column().classes("w-full max-w-2xl gap-4"):
@@ -18,4 +20,4 @@ def init():
 
             with ui.card().classes("w-full"):
                 ui.label("Appearance").classes("text-xl font-bold")
-                ui.button("Dark Mode", on_click=lambda: ui.notify("You clicked me!")
+                ui.switch("Dark Mode").bind_value(dark)
