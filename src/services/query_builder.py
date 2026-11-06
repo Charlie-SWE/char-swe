@@ -1,14 +1,3 @@
-"""Turn the View Data page's UI choices into a SQLite query.
-
-build_player_query() is a pure function: the same filters
-always give the same (sql, params). It never touches the
-UI or the database, so it is easy to test.
-
-Rule: column names only enter the SQL string after being
-checked against a whitelist. Every user-supplied *value*
-goes in as a ? parameter.
-"""
-
 import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -169,7 +158,6 @@ def run_query(
 
 
 def list_teams(conn: sqlite3.Connection) -> dict[int, str]:
-    """team_id -> team_name, for the team dropdown."""
     rows = conn.execute(
         "SELECT team_id, team_name FROM Teams "
         "ORDER BY team_name"

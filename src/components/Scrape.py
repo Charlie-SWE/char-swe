@@ -1,22 +1,3 @@
-"""Download the NCAA D1 women's soccer season into data/gaffer.db.
-
-`uv run app.py` does this automatically on first run. By hand:
-    uv run python -m src.components.Scrape           # fill the database if needed
-    uv run python -m src.components.Scrape --update  # also fetch games not saved yet
-
-Every run:
-1. Creates the tables from data/schema.sql if they don't exist.
-2. Merges duplicate player rows already in the database.
-3. Downloads the season unless a full download already finished
-   (or with --update): schedule -> each day's scoreboard -> each
-   game's box score. A finished download is recorded in the
-   database's PRAGMA user_version.
-
-The API gives players no ID, so a player is identified by their
-team plus their name, ignoring capitalisation and extra spaces.
-Games already in the database are skipped, so re-running is safe.
-"""
-
 import argparse
 import http.client
 import json
