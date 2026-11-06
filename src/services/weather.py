@@ -77,7 +77,7 @@ def city_to_coordinates(city, state):
         r_state = r.get("admin1")
 
         # Return if we find the state
-        if r_state == state:
+        if r_state and r_state.casefold() == state.strip().casefold():
             long_lat_dict = {
                 "latitude": r["latitude"],
                 "longitude": r["longitude"],
