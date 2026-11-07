@@ -1,5 +1,5 @@
 from nicegui import ui
-from src.components.Layout import frame
+from src.components.Layout import frame, page_body, page_header
 
 def init():
     @ui.page('/settings')
