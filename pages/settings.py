@@ -4,8 +4,24 @@ from src.components.Layout import frame
 def init():
     @ui.page('/settings')
     def settings_page():
-        frame()
-        ui.label("Settings").classes("text-4xl font-bold")
-        ui.button("Profile", on_click=lambda: ui.notify("You clicked me!"))
-        ui.button("Account", on_click=lambda: ui.notify("You clicked me!"))
-        ui.button("Notifications", on_click=lambda: ui.notify("You clicked me!"))
+        frame(active="settings")
+
+        with page_body():
+            page_header("PREFERENCES", "Settings", "Manage your application preferences.")
+
+            ui.label("Appearance").classes("text-xl font-semibold")
+
+            async def save_dark_mode(e):
+                is_dark = str(e.value).lower()
+
+                await ui.run_javascript(f"""
+                    document.body.classList.toggle('dark-theme', {is_dark});
+                    localStorage.setItem('gaffer-dark-mode', '{is_dark}');
+                """)
+
+            ui.switch("Dark Mode", value=False).on_value_change(save_dark_mode)
+            
+            ui.label("Settings").classes("text-4xl font-bold")
+            ui.button("Profile", on_click=lambda: ui.notify("You clicked me!"))
+            ui.button("Account", on_click=lambda: ui.notify("You clicked me!"))
+            ui.button("Notifications", on_click=lambda: ui.notify("You clicked me!"))
