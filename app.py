@@ -60,6 +60,7 @@ def main():
     chat.init()
     view_data.init()
     weather.init()
+    app.add_static_files('/assets', 'assets')
     ui.run(favicon="favicon.svg")
 
 
