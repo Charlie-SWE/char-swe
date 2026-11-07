@@ -1,0 +1,49 @@
+:root {
+    --page-bg: #ffffff;
+    --card-bg: #f3f4f6;
+    --text-color: #1f2937;
+    --border-color: #e5e7eb;
+}
+
+body.dark-theme {
+    --page-bg: #111827;
+    --card-bg: #1f2937;
+    --text-color: #f9fafb;
+    --border-color: #374151;
+}
+
+body {
+    background-color: var(--page-bg);
+    color: var(--text-color);
+}
+
+.q-card {
+    background-color: var(--card-bg);
+    color: var(--text-color);
+    border: 1px solid var(--border-color);
+}
+
+body.dark-theme .q-drawer,
+body.dark-theme .q-drawer__content {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .q-drawer .q-btn,
+body.dark-theme .q-drawer .q-icon {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .q-drawer .q-label {
+    color: var(--text-color) !important;
+}
+
+
+body.dark-theme .q-field__label,
+body.dark-theme .q-field__native {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .q-field__control {
+    background-color: var(--card-bg) !important;
+}
