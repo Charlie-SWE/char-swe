@@ -34,6 +34,19 @@ HEAD = f"""
 
 def frame(active: str = "home", user: dict | None = None):
     ui.add_head_html(HEAD)
+
+    ui.add_head_html('<link rel="stylesheet" href="/assets/css/styles.css">')
+
+    ui.run_javascript("""
+        const savedTheme = localStorage.getItem('gaffer-dark-mode');
+
+        if(savedTheme === 'true'){
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    """)
+    
     ui.query(".nicegui-content").classes("p-0")
 
     with ui.header().classes("items-center gap-3 px-5 h-16").style(
@@ -59,7 +72,7 @@ def frame(active: str = "home", user: dict | None = None):
             ).style(f"background:{PrimaryLightHex}; color:{SecondaryDarkHex}")
 
     with ui.left_drawer(value=True).props("width=232 bordered").classes(
-        "bg-white px-3 py-5 gap-1"
+        "theme-drawer px-3 py-5 gap-1"
     ) as drawer:
         ui.label("NAVIGATION").classes("font-mono-label px-3 pb-2").style(
             f"color:{SecondaryGrayHex}"
@@ -67,7 +80,7 @@ def frame(active: str = "home", user: dict | None = None):
         for key, label, icon, path in NAV_ITEMS:
             ui.button(label, icon=icon, on_click=lambda p=path: ui.navigate.to(p)).classes(
                 "nav-btn w-full" + (" active" if key == active else "")
-            ).props("flat no-caps align=left").style("color:#3D4860")
+            ).props("flat no-caps align=left")
 
 
 def page_header(eyebrow: str, title: str, subtitle: str = ""):
