@@ -1,0 +1,21 @@
+.bubble-me {
+  background: var(--primary-dark);
+  color: #fff;
+  border-radius: 14px 14px 4px 14px;
+}
+.bubble-bot {
+  background: #f7f8fa;
+  border: 1px solid #e3e6ec;
+  color: #2a3550;
+  border-radius: 4px 14px 14px 14px;
+}
+.bubble-bot .nicegui-markdown p {
+  margin: 0 0 0.5em;
+}
+.bubble-bot .nicegui-markdown p:last-child {
+  margin: 0;
+}
+.composer-box {
+  background: #f4f5f7;
+  border-radius: 12px;
+}

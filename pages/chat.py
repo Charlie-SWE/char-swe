@@ -23,14 +23,6 @@ HAS_KEY = ROCKY_API_KEY != ""
 
 HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 
-CHAT_CSS = """
-<style>
-  .bubble-me  { background:%(dark)s; color:#fff; border-radius:14px 14px 4px 14px; }
-  .bubble-bot { background:#F7F8FA; border:1px solid #E3E6EC; color:#2A3550; border-radius:4px 14px 14px 14px; }
-  .bubble-bot .nicegui-markdown p { margin:0 0 .5em; } .bubble-bot .nicegui-markdown p:last-child { margin:0; }
-  .composer-box { background:#F4F5F7; border-radius:12px; }
-</style>
-""" % {"dark": PrimaryDarkHex}
 
 # ---------- Rocky API ----------
 
@@ -129,7 +121,6 @@ def init():
     @ui.page("/chat")
     def chat_page():
         frame("chat")
-        ui.add_head_html(CHAT_CSS)
 
         history: list[dict] = []
         busy = {"on": False}

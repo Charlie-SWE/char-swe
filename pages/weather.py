@@ -6,14 +6,6 @@ from src.components.Colors import PrimaryDarkHex, PrimaryLightHex, SecondaryDark
 from src.components.Layout import frame, page_body, page_header
 from src.services.weather import get_weather
 
-CSS = """
-.data-table thead th { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
-                       text-transform:uppercase; color:#7A849A; background:#F7F8FA; }
-.data-table tbody td { font-size:14px; color:#2A3550; }
-.data-table tbody tr:hover td { background:#F4F6FA; }
-"""
-
-
 def pretty(key: str) -> str:
     return key.replace("_", " ").title()
 
@@ -29,7 +21,6 @@ def init():
     @ui.page("/weather")
     def weather_page():
         frame("weather")
-        ui.add_css(CSS)
 
         with page_body():
             page_header("CONDITIONS", "Weather", "Conditions for match days, past or upcoming.")
