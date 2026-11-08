@@ -112,9 +112,10 @@ def extract_text(data: dict) -> str:
                     parts.append(c.get("text", ""))
     return "".join(parts)
 
-#Change both values if you modify max, was having compiler issues with unitialized array -Brendan
-previous_messages = [None] * 10
+
+# Context size
 max = 10
+previous_messages = [None] * max
 current = 0
 
 def generate_payload(text):
@@ -124,25 +125,22 @@ def generate_payload(text):
         current = 0
         previous_messages[0] = text
     else: 
-        print(previous_messages, max, current, type(max), type(current))
         previous_messages[current] = text
         current = (current + 1) % max
 
-    append_str = "\n**Context from previous messages:**\n"
+    append_str = "\nCOntext from previous messages:**\n"
     for i,v in enumerate(previous_messages):
         append_str += f"{i+1}. {v}\n"
 
     text = text + append_str
-    payload = {
+
+    return {
         "model": get_model(),
         "instructions": get_context(),
         "input": text,
         "max_output_tokens": 2048,
         "store": False,
     }
-
-    print(text)
-    return payload
 
 
 def ask_rocky(text: str) -> str:
