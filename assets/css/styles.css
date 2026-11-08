@@ -5,7 +5,7 @@
     --border-color: #e5e7eb;
 }
 
-body.dark-theme {
+html.dark-theme {
     --page-bg: #111827;
     --card-bg: #1f2937;
     --text-color: #f9fafb;
@@ -23,170 +23,170 @@ body {
     border: 1px solid var(--border-color);
 }
 
-body.dark-theme .q-drawer,
-body.dark-theme .q-drawer__content {
+html.dark-theme .q-drawer,
+html.dark-theme .q-drawer__content {
     background-color: var(--card-bg) !important;
     color: var(--text-color) !important;
 }
 
-body.dark-theme .q-drawer .q-btn,
-body.dark-theme .q-drawer .q-icon {
+html.dark-theme .q-drawer .q-btn,
+html.dark-theme .q-drawer .q-icon {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .q-drawer .q-label {
+html.dark-theme .q-drawer .q-label {
     color: var(--text-color) !important;
 }
 
 
-body.dark-theme .q-field__label,
-body.dark-theme .q-field__native {
+html.dark-theme .q-field__label,
+html.dark-theme .q-field__native {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .q-field__control {
+html.dark-theme .q-field__control {
     background-color: var(--card-bg) !important;
 }
 
-body.dark-theme {
+html.dark-theme {
     background-color: var(--page-bg) !important;
 }
 
-body.dark-theme .nicegui-content {
+html.dark-theme .nicegui-content {
     background-color: var(--page-bg);
     color: var(--text-color);
 }
 
-body.dark-theme .card,
-body.dark-theme .feature-card {
+html.dark-theme .card,
+html.dark-theme .feature-card {
     background-color: var(--card-bg) !important;
     color: var(--text-color) !important;
     border-color: var(--border-color) !important;
 }
 
-body.dark-theme .feature-card:hover {
+html.dark-theme .feature-card:hover {
     border-color: #64748b !important;
 }
 
-body.dark-theme .font-display.text-4xl {
+html.dark-theme .font-display.text-4xl {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .nicegui-content .text-base {
+html.dark-theme .nicegui-content .text-base {
     color: #d1d5db !important;
 }
 
-body.dark-theme .nav-btn.active {
+html.dark-theme .nav-btn.active {
     background-color: #374151 !important;
     color: var(--text-color) !important;
 }
 
-body.dark-theme .nav-btn.active .q-icon {
+html.dark-theme .nav-btn.active .q-icon {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .cal-cell.outside {
+html.dark-theme .cal-cell.outside {
     background-color: var(--card-bg) !important;
 }
 
-body.dark-theme .cal-cell.outside .cal-num {
+html.dark-theme .cal-cell.outside .cal-num {
     color: #9ca3af !important;
 }
 
-body.dark-theme .cal-num {
+html.dark-theme .cal-num {
     color: #d1d5db !important;
 }
 
-body.dark-theme .cal-cell.outside .cal-num.today {
+html.dark-theme .cal-cell.outside .cal-num.today {
     color: var(--text-color) !important;
 }
 
 /* Chat dark mode */
-body.dark-theme .composer-box {
+html.dark-theme .composer-box {
     background-color: #374151 !important;
 }
 
-body.dark-theme .chat-composer {
+html.dark-theme .chat-composer {
     background-color: var(--card-bg) !important;
     border-color: var(--border-color) !important;
 }
 
-body.dark-theme .bubble-bot {
+html.dark-theme .bubble-bot {
     background-color: #374151 !important;
     border-color: var(--border-color) !important;
     color: var(--text-color) !important;
 }
 
-body.dark-theme .bubble-bot .nicegui-markdown {
+html.dark-theme .bubble-bot .nicegui-markdown {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .chat-heading {
+html.dark-theme .chat-heading {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .chat-description {
+html.dark-theme .chat-description {
     color: #d1d5db !important;
 }
 
-body.dark-theme .chat-input input {
+html.dark-theme .chat-input input {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .chat-input input::placeholder {
+html.dark-theme .chat-input input::placeholder {
     color: #9ca3af !important;
 }
 
 /* Home page pipeline dark mode */
-body.dark-theme .pipeline-box {
+html.dark-theme .pipeline-box {
     background-color: #374151 !important;
 }
 
-body.dark-theme .pipeline-box .text-sm {
+html.dark-theme .pipeline-box .text-sm {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .pipeline-tag {
+html.dark-theme .pipeline-tag {
     background-color: #1f2937 !important;
     border: 1px solid var(--border-color) !important;
     color: var(--text-color) !important;
 }
 
 /* General dark mode text fixes */
-body.dark-theme .nicegui-content {
+html.dark-theme .nicegui-content {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .nicegui-content .font-display,
-body.dark-theme .nicegui-content .font-semibold,
-body.dark-theme .nicegui-content .font-bold {
+html.dark-theme .nicegui-content .font-display,
+html.dark-theme .nicegui-content .font-semibold,
+html.dark-theme .nicegui-content .font-bold {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .nicegui-content .text-sm,
-body.dark-theme .nicegui-content .text-base {
+html.dark-theme .nicegui-content .text-sm,
+html.dark-theme .nicegui-content .text-base {
     color: #d1d5db !important;
 }
 
 /* Override common inline dark text colors */
-body.dark-theme .nicegui-content [style*="#00295F"],
-body.dark-theme .nicegui-content [style*="#003976"],
-body.dark-theme .nicegui-content [style*="#2A3550"],
-body.dark-theme .nicegui-content [style*="#55607A"] {
+html.dark-theme .nicegui-content [style*="#00295F"],
+html.dark-theme .nicegui-content [style*="#003976"],
+html.dark-theme .nicegui-content [style*="#2A3550"],
+html.dark-theme .nicegui-content [style*="#55607A"] {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .about-text {
+html.dark-theme .about-text {
     color: var(--text-color) !important;
 }
 
 /* View Data team dropdown dark mode */
-body.dark-theme .team-select .q-field__native,
-body.dark-theme .team-select .q-field__input,
-body.dark-theme .team-select .q-field__marginal {
+html.dark-theme .team-select .q-field__native,
+html.dark-theme .team-select .q-field__input,
+html.dark-theme .team-select .q-field__marginal {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .team-select .q-field__label {
+html.dark-theme .team-select .q-field__label {
     color: #9ca3af !important;
 }
