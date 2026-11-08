@@ -1,3 +1,12 @@
-.test {
-  background-color: black;
+/*All of the colors used throughout the app! */
+:root {
+  --primary-dark: #003976;
+  --primary-light: #efab00;
+
+  --secondary-light: #2c8ecd;
+  --secondary-dark: #00295f;
+
+  --secondary-yellow: #ffd702;
+  --secondary-gray: #96a0a5;
+  --secondary-light-gray: #b5b8b5;
 }
