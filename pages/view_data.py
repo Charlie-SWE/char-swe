@@ -16,34 +16,6 @@ from src.services.query_builder import (
     run_query,
 )
 
-CSS = """
-    .data-table thead th { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
-                           text-transform:uppercase; color:#7A849A; background:#F7F8FA; }
-    .data-table tbody td { font-size:14px; color:#2A3550; }
-    .data-table tbody tr:hover td { background:#F4F6FA; }
-    .filter-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:#7A849A; }
-    .vd-notice { gap:12px; padding:12px 16px; border-radius:12px; background:#FFF7E0; border:1px solid #F5D98A; color:#6B4E00; }
-    .vd-notice-spinner { color:#B07A00; }
-    .vd-notice-text { font-size:14px; font-weight:500; }
-    .vd-title { font-family:'Archivo',sans-serif; font-size:18px; font-weight:700; letter-spacing:-0.01em; color:%(dark2)s; }
-    .vd-filters { padding:20px; gap:16px; }
-    .vd-filter-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
-    .vd-columns-row { gap:12px; }
-    .vd-show-button { background:%(gold)s; color:#fff; font-weight:700; border-radius:10px; height:40px; }
-    .vd-results { padding:0; gap:0; overflow:hidden; }
-    .vd-results-head { padding:16px 20px; gap:8px; border-bottom:1px solid #E3E6EC; }
-    .vd-count { font-size:12px; font-weight:600; padding:2px 8px; border-radius:9999px; background:#EEF2F9; color:%(dark)s; }
-    .vd-rows { gap:0; }
-    .vd-empty { padding:64px 0; gap:8px; }
-    .vd-empty-icon { color:#B9C4D8; font-size:36px; }
-    .vd-empty-text { font-size:14px; color:#7A849A; }
-""" % {
-    "dark": PrimaryDarkHex,
-    "dark2": SecondaryDarkHex,
-    "gold": PrimaryLightHex,
-}
-
-
 DEFAULT_COLUMNS = PlayerFilters().columns
 DEFAULT_TEAM_NAME = "Kent State University"
 
@@ -61,7 +33,6 @@ def init():
     @ui.page("/view-data")
     def view_data_page():
         frame("data")
-        ui.add_css(CSS)
 
         with closing(sqlite3.connect(DB_PATH)) as conn:
             teams = list_teams(conn)
