@@ -36,6 +36,16 @@ def frame(active: str = "home", user: dict | None = None):
     ui.add_head_html(HEAD)
 
     ui.add_head_html('<link rel="stylesheet" href="/assets/css/styles.css">')
+
+    ui.run_javascript("""
+        const savedTheme = localStorage.getItem('gaffer-dark-mode');
+
+        if(savedTheme === 'true'){
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+    """)
     
     ui.query(".nicegui-content").classes("p-0")
 
