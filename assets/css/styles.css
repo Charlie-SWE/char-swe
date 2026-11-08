@@ -175,3 +175,7 @@ body.dark-theme .nicegui-content [style*="#2A3550"],
 body.dark-theme .nicegui-content [style*="#55607A"] {
     color: var(--text-color) !important;
 }
+
+body.dark-theme .about-text {
+    color: var(--text-color) !important;
+}
