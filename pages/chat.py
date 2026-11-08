@@ -15,7 +15,13 @@ from src.components.Layout import frame, page_body, page_header
 dotenv.load_dotenv()
 
 BASE_URL = "https://rocky.cs.kent.edu/v1"
-HEADERS = {"Authorization": f"Bearer {os.environ.get('ROCKY_API_KEY', '')}"}
+
+ROCKY_API_KEY = os.environ.get("ROCKY_API_KEY", "")
+
+# True if the user has a rocky API key
+HAS_KEY = ROCKY_API_KEY != ""
+
+HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 
 CHAT_CSS = """
 <style>
@@ -59,7 +65,9 @@ def ask_rocky(history: list[dict]) -> str:
         "max_output_tokens": 2048,
         "store": False,
     }
-    r = requests.post(f"{BASE_URL}/responses", headers=HEADERS, json=payload, timeout=300)
+    r = requests.post(
+        f"{BASE_URL}/responses", headers=HEADERS, json=payload, timeout=300
+    )
     try:
         data = r.json()
     except ValueError:
@@ -74,28 +82,35 @@ def ask_rocky(history: list[dict]) -> str:
 
 # ---------- UI pieces ----------
 
+
 def user_bubble(text: str):
     with ui.row().classes("w-full justify-end"):
-        ui.label(text).classes("bubble-me px-4 py-3 text-[15px] leading-relaxed max-w-[75%]").style(
-            "white-space:pre-wrap"
-        )
+        ui.label(text).classes(
+            "bubble-me px-4 py-3 text-[15px] leading-relaxed max-w-[75%]"
+        ).style("white-space:pre-wrap")
 
 
 def bot_row():
     with ui.row().classes("w-full gap-3 no-wrap items-start"):
-        with ui.element("div").classes(
-            "w-8 h-8 shrink-0 rounded-lg flex items-center justify-center"
-        ).style(f"background:{PrimaryLightHex}"):
+        with (
+            ui.element("div")
+            .classes("w-8 h-8 shrink-0 rounded-lg flex items-center justify-center")
+            .style(f"background:{PrimaryLightHex}")
+        ):
             ui.icon("smart_toy").style(f"color:{SecondaryDarkHex}; font-size:20px")
         col = ui.column().classes("gap-1 max-w-[80%]")
         with col:
-            ui.label("ROCKY").classes("font-mono-label").style(f"color:{SecondaryLightHex}")
+            ui.label("ROCKY").classes("font-mono-label").style(
+                f"color:{SecondaryLightHex}"
+            )
     return col
 
 
 def bot_bubble(text: str):
     with bot_row():
-        with ui.element("div").classes("bubble-bot px-4 py-3 text-[15px] leading-relaxed"):
+        with ui.element("div").classes(
+            "bubble-bot px-4 py-3 text-[15px] leading-relaxed"
+        ):
             ui.markdown(text)
 
 
@@ -109,6 +124,7 @@ def thinking_row():
 
 # ---------- Page ----------
 
+
 def init():
     @ui.page("/chat")
     def chat_page():
@@ -119,7 +135,9 @@ def init():
         busy = {"on": False}
 
         def scroll_down():
-            ui.run_javascript("window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})")
+            ui.run_javascript(
+                "window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
+            )
 
         def new_chat():
             history.clear()
@@ -161,21 +179,33 @@ def init():
 
         with page_body():
             with ui.row().classes("w-full items-end justify-between no-wrap"):
-                page_header("ASSISTANT", "Chat", "Ask about schedules, stats and recommendations.")
+                page_header(
+                    "ASSISTANT",
+                    "Chat",
+                    "Ask about schedules, stats and recommendations.",
+                )
                 ui.button("New chat", icon="add_comment", on_click=new_chat).props(
                     "outline no-caps"
                 ).style(f"color:{PrimaryDarkHex}; border-radius:10px; font-weight:600")
 
             with ui.column().classes("card w-full gap-0").style("min-height:540px"):
                 # Empty state
-                with ui.column().classes("w-full flex-grow items-center justify-center gap-3 p-10") as empty:
-                    with ui.element("div").classes("w-12 h-12 rounded-xl flex items-center justify-center").style(
-                        f"background:{PrimaryLightHex}"
+                with ui.column().classes(
+                    "w-full flex-grow items-center justify-center gap-3 p-10"
+                ) as empty:
+                    with (
+                        ui.element("div")
+                        .classes(
+                            "w-12 h-12 rounded-xl flex items-center justify-center"
+                        )
+                        .style(f"background:{PrimaryLightHex}")
                     ):
-                        ui.icon("smart_toy").style(f"color:{SecondaryDarkHex}; font-size:28px")
-                    ui.label("Ask Rocky about your team").classes("chat-heading font-display text-xl font-bold").style(
-                        f"color:{SecondaryDarkHex}"
-                    )
+                        ui.icon("smart_toy").style(
+                            f"color:{SecondaryDarkHex}; font-size:28px"
+                        )
+                    ui.label("Ask Rocky about your team").classes(
+                        "chat-heading font-display text-xl font-bold"
+                    ).style(f"color:{SecondaryDarkHex}")
                     ui.label(
                         "Player schedules, match statistics and lineup recommendations."
                     ).classes("chat-description text-sm").style("color:#55607A")
@@ -183,18 +213,40 @@ def init():
                 # Messages
                 messages = ui.column().classes("w-full gap-5 p-6")
 
-                with ui.column().classes("chat-composer w-full gap-1 px-4 pt-3 pb-2").style(
-                    "position:sticky; bottom:0; background:#fff; border-top:1px solid #E3E6EC;"
-                    "border-radius:0 0 14px 14px; margin-top:auto"
+                with (
+                    ui.column()
+                    .classes("chat-composer w-full gap-1 px-4 pt-3 pb-2")
+                    .style(
+                        "position:sticky; bottom:0; background:#fff; border-top:1px solid #E3E6EC;"
+                        "border-radius:0 0 14px 14px; margin-top:auto"
+                    )
                 ):
-                    with ui.row().classes("composer-box w-full items-center gap-2 no-wrap pl-4 pr-2 py-1"):
-                        box = ui.input(placeholder="Ask a question…").props("borderless dense").classes(
-                            "chat-input flex-grow text-[15px]"
+                    with ui.row().classes(
+                        "composer-box w-full items-center gap-2 no-wrap pl-4 pr-2 py-1"
+                    ):
+                        box = (
+                            ui.input(placeholder="Ask a question…")
+                            .props("borderless dense")
+                            .classes("chat-input flex-grow text-[15px]")
                         )
                         box.on("keydown.enter", lambda: send())
-                        send_btn = ui.button(icon="arrow_upward", on_click=lambda: send()).props(
-                            "unelevated round dense"
-                        ).style(f"background:{PrimaryLightHex} !important; color:{SecondaryDarkHex}")
-                    ui.label("Rocky can make mistakes — double-check stats against View Data.").classes(
-                        "text-xs self-center"
-                    ).style("color:#7A849A")
+                        send_btn = (
+                            ui.button(icon="arrow_upward", on_click=lambda: send())
+                            .props("unelevated round dense")
+                            .style(
+                                f"background:{PrimaryLightHex} !important; color:{SecondaryDarkHex}"
+                            )
+                        )
+
+                        # If the user doesn't have an API key it disables the button and the typing box
+                        if not HAS_KEY:
+                            send_btn.disable()
+                            box.disable()
+
+                            # Tooltip when you hover over send without a rocky API key
+                            with send_btn:
+                                ui.tooltip("No Rocky API key in the .env file")
+
+                    ui.label(
+                        "Rocky can make mistakes — double-check stats against View Data."
+                    ).classes("text-xs self-center").style("color:#7A849A")
