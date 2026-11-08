@@ -84,3 +84,8 @@ body.dark-theme .nav-btn.active {
 body.dark-theme .nav-btn.active .q-icon {
     color: var(--text-color) !important;
 }
+
+body.dark-theme .q-date__calendar-item--outside .q-btn {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
