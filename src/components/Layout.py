@@ -16,11 +16,6 @@ NAV_ITEMS = [
 ]
 
 HEAD = f"""
-<script>
-    if (localStorage.getItem('gaffer-dark-mode') === 'true') {{
-        document.documentElement.classList.add('dark-theme');
-    }}
-</script>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
 <style>
   body {{ background:#F4F5F7; font-family:'Source Sans 3',sans-serif; color:{SecondaryDarkHex}; }}
