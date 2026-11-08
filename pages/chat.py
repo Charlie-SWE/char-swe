@@ -173,23 +173,23 @@ def init():
                         f"background:{PrimaryLightHex}"
                     ):
                         ui.icon("smart_toy").style(f"color:{SecondaryDarkHex}; font-size:28px")
-                    ui.label("Ask Rocky about your team").classes("font-display text-xl font-bold").style(
+                    ui.label("Ask Rocky about your team").classes("chat-heading font-display text-xl font-bold").style(
                         f"color:{SecondaryDarkHex}"
                     )
                     ui.label(
                         "Player schedules, match statistics and lineup recommendations."
-                    ).classes("text-sm").style("color:#55607A")
+                    ).classes("chat-description text-sm").style("color:#55607A")
 
                 # Messages
                 messages = ui.column().classes("w-full gap-5 p-6")
 
-                with ui.column().classes("w-full gap-1 px-4 pt-3 pb-2").style(
+                with ui.column().classes("chat-composer w-full gap-1 px-4 pt-3 pb-2").style(
                     "position:sticky; bottom:0; background:#fff; border-top:1px solid #E3E6EC;"
                     "border-radius:0 0 14px 14px; margin-top:auto"
                 ):
                     with ui.row().classes("composer-box w-full items-center gap-2 no-wrap pl-4 pr-2 py-1"):
                         box = ui.input(placeholder="Ask a question…").props("borderless dense").classes(
-                            "flex-grow text-[15px]"
+                            "chat-input flex-grow text-[15px]"
                         )
                         box.on("keydown.enter", lambda: send())
                         send_btn = ui.button(icon="arrow_upward", on_click=lambda: send()).props(
