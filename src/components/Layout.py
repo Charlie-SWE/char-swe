@@ -63,24 +63,30 @@ def frame(active: str = "home", user: dict | None = None):
     ui.add_head_html(HEAD)
 
     ui.add_head_html('<link rel="stylesheet" href="/assets/css/styles.css">')
-    
+
     ui.query(".nicegui-content").classes("p-0")
 
-    with ui.header().classes("items-center gap-3 px-5 h-16").style(
-        f"background-color: {PrimaryDarkHex}"
+    with (
+        ui.header()
+        .classes("items-center gap-3 px-5 h-16")
+        .style(f"background-color: {PrimaryDarkHex}")
     ):
         ui.button(on_click=lambda: drawer.toggle(), icon="menu").props(
             "flat round color=white"
         )
-        with ui.element("div").classes("w-8 h-8 rounded-lg flex items-center justify-center").style(
-            f"background:{PrimaryLightHex}"
+        with (
+            ui.element("div")
+            .classes("w-8 h-8 rounded-lg flex items-center justify-center")
+            .style(f"background:{PrimaryLightHex}")
         ):
             ui.image("favicon.svg").classes("w-6")
         ui.label("Gaffer").classes("font-display text-xl font-extrabold text-white")
         ui.space()
         if user:
             with ui.column().classes("gap-0 items-end leading-tight"):
-                ui.label(user.get("name", "")).classes("text-sm font-semibold text-white")
+                ui.label(user.get("name", "")).classes(
+                    "text-sm font-semibold text-white"
+                )
                 if user.get("role"):
                     ui.label(user["role"]).classes("text-xs").style("color:#AFC0DD")
             initials = "".join(w[0] for w in user.get("name", "").split()[:2]).upper()
@@ -88,21 +94,24 @@ def frame(active: str = "home", user: dict | None = None):
                 "w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm"
             ).style(f"background:{PrimaryLightHex}; color:{SecondaryDarkHex}")
 
-    with ui.left_drawer(value=True).props("width=232 bordered").classes(
-        "theme-drawer px-3 py-5 gap-1"
-    ) as drawer:
+    with (
+        ui.left_drawer(value=True)
+        .props("width=232 bordered")
+        .classes("theme-drawer px-3 py-5 gap-1") as drawer
+    ):
         ui.label("NAVIGATION").classes("font-mono-label px-3 pb-2").style(
             f"color:{SecondaryGrayHex}"
         )
         for key, label, icon, path in NAV_ITEMS:
-            ui.button(label, icon=icon, on_click=lambda p=path: ui.navigate.to(p)).classes(
-                "nav-btn w-full" + (" active" if key == active else "")
-            ).props("flat no-caps align=left")
+            ui.button(
+                label, icon=icon, on_click=lambda p=path: ui.navigate.to(p)
+            ).classes("nav-btn w-full" + (" active" if key == active else "")).props(
+                "flat no-caps align=left"
+            )
 
 
-def page_header(eyebrow: str, title: str, subtitle: str = ""):
+def page_header(title: str, subtitle: str = ""):
     with ui.column().classes("gap-1"):
-        ui.label(eyebrow).classes("font-mono-label").style("color:#2C8ECD")
         ui.label(title).classes("font-display text-4xl font-extrabold").style(
             f"color:{SecondaryDarkHex}"
         )

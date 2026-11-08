@@ -23,7 +23,7 @@ def init():
         frame("weather")
 
         with page_body():
-            page_header("CONDITIONS", "Weather", "Conditions for match days, past or upcoming.")
+            page_header("Weather", "Conditions for match days, past or upcoming.")
 
             # Inputs
             with ui.column().classes("card w-full p-5 gap-4"):

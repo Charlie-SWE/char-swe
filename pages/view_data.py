@@ -47,9 +47,7 @@ def init():
         column_options = {col: pretty(col) for col in COLUMNS}
 
         with page_body():
-            page_header(
-                "HISTORY", "View Data", "Historical results and player statistics."
-            )
+            page_header("View Data", "Historical results and player statistics.")
 
             if downloading:
                 with ui.row().classes("vd-notice w-full items-center no-wrap"):
