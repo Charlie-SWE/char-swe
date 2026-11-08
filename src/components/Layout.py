@@ -34,12 +34,19 @@ HEAD = f"""
 </script>
 <style>
     html.theme-loading body {{
-    background-color: var(--page-bg) !important;
-    visibility: visible;
+        visibility: visible;
+    }}
+
+    html.theme-loading body:has(.nicegui-content) {{
+        background-color: #ffffff !important;
+    }}
+
+    html.theme-loading body.dark-theme {{
+        background-color: #111827 !important;
     }}
 
     html.theme-loading .nicegui-content {{
-    background-color: var(--page-bg) !important;
+        background-color: inherit !important;
     }}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
