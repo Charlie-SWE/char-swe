@@ -100,3 +100,39 @@ body.dark-theme .cal-num {
 body.dark-theme .cal-cell.outside .cal-num.today {
     color: var(--text-color) !important;
 }
+
+/* Chat dark mode */
+body.dark-theme .composer-box {
+    background-color: #374151 !important;
+}
+
+body.dark-theme .chat-composer {
+    background-color: var(--card-bg) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .bubble-bot {
+    background-color: #374151 !important;
+    border-color: var(--border-color) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .bubble-bot .nicegui-markdown {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .chat-heading {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .chat-description {
+    color: #d1d5db !important;
+}
+
+body.dark-theme .chat-input input {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .chat-input input::placeholder {
+    color: #9ca3af !important;
+}
