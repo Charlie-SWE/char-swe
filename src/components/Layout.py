@@ -17,36 +17,30 @@ NAV_ITEMS = [
 
 HEAD = f"""
 <script>
-    document.documentElement.classList.add('theme-loading');
+    const savedTheme = localStorage.getItem('gaffer-dark-mode');
+    document.documentElement.dataset.theme = savedTheme === 'true' ? 'dark' : 'light';
 
-    function applySavedTheme() {{
-        if (localStorage.getItem('gaffer-dark-mode') === 'true') {{
+    document.addEventListener('DOMContentLoaded', () => {{
+        if (savedTheme === 'true') {{
             document.body.classList.add('dark-theme');
+        }} else {{
+            document.body.classList.remove('dark-theme');
         }}
-        document.documentElement.classList.remove('theme-loading');
-    }}
-
-    if (document.readyState === 'loading') {{
-        document.addEventListener('DOMContentLoaded', applySavedTheme);
-    }} else {{
-        applySavedTheme();
-    }}
+    }});
 </script>
 <style>
-    html.theme-loading body {{
-        visibility: visible;
-    }}
-
-    html.theme-loading body:has(.nicegui-content) {{
-        background-color: #ffffff !important;
-    }}
-
-    html.theme-loading body.dark-theme {{
+    html[data-theme="dark"].theme-loading body,
+    html[data-theme="dark"] body {{
         background-color: #111827 !important;
     }}
 
+    html[data-theme="light"].theme-loading body,
+    html[data-theme="light"] body {{
+        background-color: #F4F5F7 !important;
+    }}
+
     html.theme-loading .nicegui-content {{
-        background-color: inherit !important;
+        background-color: transparent !important;
     }}
 </style>
 <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
