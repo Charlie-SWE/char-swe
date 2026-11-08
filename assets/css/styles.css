@@ -85,7 +85,18 @@ body.dark-theme .nav-btn.active .q-icon {
     color: var(--text-color) !important;
 }
 
-body.dark-theme .q-date__calendar-item--outside .q-btn {
+body.dark-theme .cal-cell.outside {
     background-color: var(--card-bg) !important;
+}
+
+body.dark-theme .cal-cell.outside .cal-num {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .cal-num {
+    color: #d1d5db !important;
+}
+
+body.dark-theme .cal-cell.outside .cal-num.today {
     color: var(--text-color) !important;
 }
