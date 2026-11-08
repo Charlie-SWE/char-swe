@@ -47,3 +47,40 @@ body.dark-theme .q-field__native {
 body.dark-theme .q-field__control {
     background-color: var(--card-bg) !important;
 }
+
+body.dark-theme {
+    background-color: var(--page-bg) !important;
+}
+
+body.dark-theme .nicegui-content {
+    background-color: var(--page-bg);
+    color: var(--text-color);
+}
+
+body.dark-theme .card,
+body.dark-theme .feature-card {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .feature-card:hover {
+    border-color: #64748b !important;
+}
+
+body.dark-theme .font-display.text-4xl {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .nicegui-content .text-base {
+    color: #d1d5db !important;
+}
+
+body.dark-theme .nav-btn.active {
+    background-color: #374151 !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .nav-btn.active .q-icon {
+    color: var(--text-color) !important;
+}
