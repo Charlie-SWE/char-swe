@@ -20,67 +20,6 @@ from src.components.Layout import (
 )
 from src.services.game_details import get_game_details
 
-CSS = """
-    .cal-grid  { display:grid; grid-template-columns:repeat(7, minmax(0, 1fr)); }
-    .cal-head  { padding:10px 12px; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em;
-                 color:#7A849A; border-bottom:1px solid #E3E6EC; }
-    .cal-cell  { min-height:104px; padding:8px; display:flex; flex-direction:column; gap:4px; min-width:0;
-                 border-right:1px solid #EEF0F3; border-bottom:1px solid #EEF0F3; }
-    .cal-cell:nth-child(7n) { border-right:0; }
-    .cal-cell.outside { background:#FAFBFC; }
-    .cal-cell.outside .cal-num { color:%(lightgray)s; }
-    .cal-num   { width:26px; height:26px; border-radius:50%%; display:flex; align-items:center; justify-content:center;
-                 font-size:13px; font-weight:600; color:#3D4860; }
-    .cal-num.today { background:%(gold)s; color:%(dark2)s; font-weight:700; }
-    .cal-cell.has-game { background:#EEF2F9; cursor:pointer; transition:background .15s; }
-    .cal-cell.has-game:hover { background:#DCE5F3; }
-    .cal-result { font-size:13px; font-weight:700; color:%(dark2)s; }
-    .cal-opponent { font-size:12px; font-weight:600; line-height:1.3; color:%(dark)s; overflow-wrap:anywhere; }
-    .cal-where { margin-top:auto; font-size:11px; line-height:1.3; color:#7A849A;
-                 display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-
-    /* Game side panel */
-    .gp-eyebrow { color:#2C8ECD; }
-    .gp-title { font-size:20px; font-weight:800; line-height:1.2; color:%(dark2)s; }
-    .gp-close { color:#7A849A; }
-    .gp-score { font-size:32px; font-weight:800; line-height:1; }
-    .gp-score.gp-w { color:#1E7A46; }
-    .gp-score.gp-l { color:#B42318; }
-    .gp-score.gp-d { color:%(dark2)s; }
-    .gp-section { margin-top:10px; padding-top:12px; border-top:1px solid #E3E6EC; width:100%%; color:#7A849A; }
-    .gp-muted { font-size:13px; line-height:1.4; color:#55607A; }
-    .gp-strong { font-size:14px; font-weight:600; color:%(dark2)s; }
-    .gp-icon { color:%(dark)s; font-size:20px; }
-    .gp-weather-icon { color:%(gold)s; font-size:24px; }
-    .gp-tiles { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:8px; width:100%%; }
-    .gp-tile { background:#F4F6FA; border-radius:10px; padding:8px 10px; }
-    .gp-tile-label { font-size:11px; color:#7A849A; }
-    .gp-tile-value { font-size:15px; font-weight:700; color:%(dark2)s; }
-    .gp-goal { padding:8px 10px; border-radius:10px; background:#F7F8FA; }
-    .gp-goal.ours { background:#EEF2F9; }
-    .gp-goal-time { font-family:'JetBrains Mono',monospace; font-size:12px; color:#7A849A; min-width:42px; padding-top:1px; }
-    .gp-goal-team { font-size:12px; font-weight:700; color:%(dark2)s; }
-    .gp-goal-text { font-size:13px; line-height:1.35; color:#3D4860; }
-    .gp-goal-assist { font-size:12px; line-height:1.35; color:#7A849A; }
-    .gp-goal-score { font-size:13px; font-weight:700; color:%(dark2)s; }
-    .gp-stats { display:grid; grid-template-columns:1fr 80px 80px; row-gap:6px; width:100%%; }
-    .gp-stats-head { font-size:12px; font-weight:700; color:%(dark2)s; text-align:right; }
-    .gp-stats-label { font-size:13px; color:#55607A; }
-    .gp-stats-value { font-size:13px; font-weight:600; color:%(dark2)s; text-align:right; }
-    .gp-players { display:grid; grid-template-columns:1fr 40px 28px 28px 28px; row-gap:5px; width:100%%; }
-    .gp-players-head { font-family:'JetBrains Mono',monospace; font-size:11px; color:#7A849A; text-align:right; }
-    .gp-players-head:first-child { text-align:left; }
-    .gp-players-group { grid-column:1 / -1; margin-top:6px; font-size:12px; font-weight:700; color:%(dark)s; }
-    .gp-players-name { font-size:13px; color:#3D4860; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .gp-players-value { font-size:13px; font-weight:600; color:%(dark2)s; text-align:right; }
-    .gp-players-value.zero { color:#B9C4D8; font-weight:400; }
-""" % {
-    "dark": PrimaryDarkHex,
-    "dark2": SecondaryDarkHex,
-    "gold": PrimaryLightHex,
-    "lightgray": SecondaryLightGrayHex,
-}
-
 # The ID of kent
 OUR_TEAM_ID = 55287
 
@@ -197,7 +136,6 @@ def init():
     @ui.page("/calendar")
     def calendar_page():
         frame("calendar")
-        ui.add_css(CSS)
 
         # Gets todays date and month and year
         today = date.today()

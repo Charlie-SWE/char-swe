@@ -33,3 +33,4 @@ CSS_DIR = PROJECT_ROOT / "pages" / "css"
 
 def load_css():
     ui.add_css(CSS_DIR / "colors.css", shared=True)
+    ui.add_css(CSS_DIR / "calendar.css", shared=True)
