@@ -287,7 +287,6 @@ def init():
 
         with page_body():
             page_header(
-                "SCHEDULE",
                 "Calendar",
                 "Upcoming games, conditions and opponents.",
             )

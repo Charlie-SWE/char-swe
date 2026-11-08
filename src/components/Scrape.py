@@ -16,7 +16,7 @@ API_HOST = "ncaa-api.henrygd.me"
 SEASON = 2025
 
 
-# ---------- API ----------
+# API
 
 
 RETRY_DELAYS = (2, 5, 15)  # seconds between attempts
@@ -58,7 +58,7 @@ def get_api_data(path, sleep=time.sleep):
     return _request(path)
 
 
-# ---------- small helpers ----------
+# small helpers
 
 
 def as_int(value):
@@ -89,7 +89,7 @@ def is_all_caps(first, last):
     return f"{first}{last}".isupper()
 
 
-# ---------- database setup ----------
+# database setup
 
 
 def ensure_schema(db):
@@ -109,7 +109,7 @@ def game_count(db):
     ).fetchone()[0]
 
 
-# ---------- players ----------
+# players
 
 
 def load_player_index(db):
@@ -247,7 +247,7 @@ def dedupe_players(db):
     return len(duplicates)
 
 
-# ---------- games ----------
+# games
 
 
 def import_game(

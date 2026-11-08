@@ -1,13 +1,14 @@
 from nicegui import ui
 from src.components.Layout import frame, page_body, page_header
 
+
 def init():
-    @ui.page('/settings')
+    @ui.page("/settings")
     def settings_page():
         frame(active="settings")
 
         with page_body():
-            page_header("PREFERENCES", "Settings", "Manage your application preferences.")
+            page_header("Settings", "Manage your application preferences.")
 
             ui.label("Appearance").classes("text-xl font-semibold")
 
@@ -31,8 +32,7 @@ def init():
                 dark_mode_switch.set_value(saved_theme)
 
             ui.timer(0.5, load_saved_theme, once=True)
-            
-            ui.label("Settings").classes("text-4xl font-bold")
+
             ui.button("Profile", on_click=lambda: ui.notify("You clicked me!"))
             ui.button("Account", on_click=lambda: ui.notify("You clicked me!"))
             ui.button("Notifications", on_click=lambda: ui.notify("You clicked me!"))

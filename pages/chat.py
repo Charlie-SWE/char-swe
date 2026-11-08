@@ -154,7 +154,7 @@ def init():
                 reply = await run.io_bound(ask_rocky, list(history))
             except requests.exceptions.RequestException:
                 history.pop()
-                ui.notify("Connection error — couldn't reach Rocky.", type="negative")
+                ui.notify("Connection error.", type="negative")
             except RuntimeError as e:
                 history.pop()
                 ui.notify(f"Rocky returned an error: {e}", type="negative")
@@ -171,7 +171,6 @@ def init():
         with page_body():
             with ui.row().classes("w-full items-end justify-between no-wrap"):
                 page_header(
-                    "ASSISTANT",
                     "Chat",
                     "Ask about schedules, stats and recommendations.",
                 )
@@ -216,7 +215,7 @@ def init():
                         "composer-box w-full items-center gap-2 no-wrap pl-4 pr-2 py-1"
                     ):
                         box = (
-                            ui.input(placeholder="Ask a question…")
+                            ui.input(placeholder="Ask a question...")
                             .props("borderless dense")
                             .classes("chat-input flex-grow text-[15px]")
                         )
@@ -238,6 +237,6 @@ def init():
                             with send_btn:
                                 ui.tooltip("No Rocky API key in the .env file")
 
-                    ui.label(
-                        "Rocky can make mistakes — double-check stats against View Data."
-                    ).classes("text-xs self-center").style("color:#7A849A")
+                    ui.label("Rocky can make mistakes.").classes(
+                        "text-xs self-center"
+                    ).style("color:#7A849A")
