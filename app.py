@@ -1,6 +1,6 @@
 import threading
 
-from nicegui import app, ui
+from nicegui import app, ui, core
 import sqlite3
 from pages import (
     landing,
@@ -61,6 +61,7 @@ def main():
     view_data.init()
     weather.init()
     app.add_static_files('/assets', 'assets')
+    core.app.config.socket_io_js_transports = ["polling"]
     ui.run(favicon="favicon.svg")
 
 
