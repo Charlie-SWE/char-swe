@@ -94,14 +94,14 @@ def init(get_user=lambda: None):
                     "grid-template-columns:repeat(auto-fit,minmax(190px,1fr))"
                 ):
                     for n, title, tags in PIPELINE:
-                        with ui.column().classes("rounded-xl p-4 gap-2").style("background:#F7F8FA"):
+                        with ui.column().classes("pipeline-box rounded-xl p-4 gap-2"):
                             with ui.row().classes("items-center gap-2"):
                                 ui.label(n).classes("font-mono-label").style(f"color:{SecondaryLightHex}")
                                 ui.label(title).classes("text-sm font-semibold").style(f"color:{SecondaryDarkHex}")
                             with ui.row().classes("gap-1"):
                                 for t in tags:
-                                    ui.label(t).classes("text-xs px-2 py-1 rounded-md bg-white").style(
-                                        "font-family:'JetBrains Mono',monospace; border:1px solid #E3E6EC; color:#2A3550"
+                                    ui.label(t).classes("pipeline-tag text-xs px-2 py-1 rounded-md").style(
+                                        "font-family:'JetBrains Mono',monospace"
                                     )
 
             # About the project
@@ -117,4 +117,4 @@ def init(get_user=lambda: None):
                         ui.label("Team & strategy management").classes("text-sm").style("color:#55607A")
                 with ui.column().classes("gap-3 max-w-[680px]"):
                     for p in ABOUT:
-                        ui.label(p).classes("text-[15.5px] leading-relaxed").style("color:#2A3550")
+                        ui.label(p).classes("about-text text-[15.5px] leading-relaxed").style("color:#2A3550")

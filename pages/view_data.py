@@ -80,7 +80,7 @@ def init():
                     name = ui.input("Player name contains").props("outlined dense clearable")
                     team = ui.select(
                         teams, value=default_team, label="Team", clearable=True, with_input=True
-                    ).props("outlined dense")
+                    ).props("outlined dense").classes("team-select")
                     position = ui.select(
                         list(POSITION_GROUPS), label="Position", clearable=True
                     ).props("outlined dense")

@@ -1,6 +1,6 @@
 import threading
 
-from nicegui import app, ui
+from nicegui import app, ui 
 import sqlite3
 from pages import (
     landing,
@@ -60,6 +60,7 @@ def main():
     chat.init()
     view_data.init()
     weather.init()
+    app.add_static_files('/assets', 'assets')
     ui.run(favicon="favicon.svg")
 
 
