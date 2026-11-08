@@ -19,11 +19,11 @@ dev = [
 ]
 
 [tool.black]
-line-length = 60
+line-length = 88
 
 [tool.sqlfluff.core]
 dialect = "sqlite"
-max_line_length = 60
+max_line_length = 88
 
 [tool.sqlfluff.indentation]
 tab_space_size = 4
