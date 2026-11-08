@@ -179,3 +179,14 @@ body.dark-theme .nicegui-content [style*="#55607A"] {
 body.dark-theme .about-text {
     color: var(--text-color) !important;
 }
+
+/* View Data team dropdown dark mode */
+body.dark-theme .team-select .q-field__native,
+body.dark-theme .team-select .q-field__input,
+body.dark-theme .team-select .q-field__marginal {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .team-select .q-field__label {
+    color: #9ca3af !important;
+}
