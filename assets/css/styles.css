@@ -136,3 +136,18 @@ body.dark-theme .chat-input input {
 body.dark-theme .chat-input input::placeholder {
     color: #9ca3af !important;
 }
+
+/* Home page pipeline dark mode */
+body.dark-theme .pipeline-box {
+    background-color: #374151 !important;
+}
+
+body.dark-theme .pipeline-box .text-sm {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .pipeline-tag {
+    background-color: #1f2937 !important;
+    border: 1px solid var(--border-color) !important;
+    color: var(--text-color) !important;
+}
