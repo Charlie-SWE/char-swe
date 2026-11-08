@@ -151,3 +151,27 @@ body.dark-theme .pipeline-tag {
     border: 1px solid var(--border-color) !important;
     color: var(--text-color) !important;
 }
+
+/* General dark mode text fixes */
+body.dark-theme .nicegui-content {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .nicegui-content .font-display,
+body.dark-theme .nicegui-content .font-semibold,
+body.dark-theme .nicegui-content .font-bold {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .nicegui-content .text-sm,
+body.dark-theme .nicegui-content .text-base {
+    color: #d1d5db !important;
+}
+
+/* Override common inline dark text colors */
+body.dark-theme .nicegui-content [style*="#00295F"],
+body.dark-theme .nicegui-content [style*="#003976"],
+body.dark-theme .nicegui-content [style*="#2A3550"],
+body.dark-theme .nicegui-content [style*="#55607A"] {
+    color: var(--text-color) !important;
+}
