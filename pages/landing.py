@@ -117,4 +117,4 @@ def init(get_user=lambda: None):
                         ui.label("Team & strategy management").classes("text-sm").style("color:#55607A")
                 with ui.column().classes("gap-3 max-w-[680px]"):
                     for p in ABOUT:
-                        ui.label(p).classes("text-[15.5px] leading-relaxed").style("color:#2A3550")
+                        ui.label(p).classes("about-text text-[15.5px] leading-relaxed").style("color:#2A3550")
