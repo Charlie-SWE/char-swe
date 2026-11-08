@@ -2,12 +2,8 @@ import requests
 from datetime import date, timedelta
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
-GEOCODE_URL = (
-    "https://geocoding-api.open-meteo.com/v1/search"
-)
-ARCHIVE_URL = (
-    "https://archive-api.open-meteo.com/v1/archive"
-)
+GEOCODE_URL = "https://geocoding-api.open-meteo.com/v1/search"
+ARCHIVE_URL = "https://archive-api.open-meteo.com/v1/archive"
 
 
 def main():
@@ -46,9 +42,7 @@ def pick_url(start_day, end_day):
 
     # Makes sure end date is not more than 16 days ahead
     if end_day > today + timedelta(days=16):
-        raise ValueError(
-            "The forecast only gives up to 16 days in the future"
-        )
+        raise ValueError("The forecast only gives up to 16 days in the future")
 
     # Archive URL starts at five day delay
     if end_day < (today - timedelta(days=5)):
@@ -85,9 +79,7 @@ def city_to_coordinates(city, state):
             return long_lat_dict
 
     # Raise an error if we don't find the city+state combo
-    raise ValueError(
-        f"No location found for {city}, {state}"
-    )
+    raise ValueError(f"No location found for {city}, {state}")
 
 
 def get_weather(city, state, start_day, end_day=None):
@@ -95,9 +87,7 @@ def get_weather(city, state, start_day, end_day=None):
     if end_day == None:
         end_day = start_day
     if end_day < start_day:
-        raise ValueError(
-            "end_day must be the same as or after start_day"
-        )
+        raise ValueError("end_day must be the same as or after start_day")
 
     coords = city_to_coordinates(city, state)
     lat = coords["latitude"]

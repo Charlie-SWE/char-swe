@@ -49,7 +49,6 @@ def _request(path):
 
 
 def get_api_data(path, sleep=time.sleep):
-    """GET a path, retrying busy-server and network errors."""
     for delay in RETRY_DELAYS:
         try:
             return _request(path)
@@ -78,7 +77,6 @@ def as_jersey(value):
 
 
 def name_key(first, last):
-    """'  FARRINGTON ' and 'Farrington' give the same key."""
     return (
         " ".join(first.split()).casefold(),
         " ".join(last.split()).casefold(),
@@ -93,7 +91,6 @@ def is_all_caps(first, last):
 
 
 def ensure_schema(db):
-    """Create any missing tables from data/schema.sql."""
     schema = SCHEMA_PATH.read_text()
     schema = re.sub(
         r"(?i)\bcreate table\b",
@@ -113,7 +110,6 @@ def game_count(db):
 
 
 def load_player_index(db):
-    """(team_id, first_key, last_key) -> player_id."""
     index = {}
     rows = db.execute(
         "SELECT DISTINCT s.team_id, p.player_id,"
@@ -132,7 +128,6 @@ def load_player_index(db):
 def fill_in_player(
     db, player_id, first, last, position, jersey
 ):
-    """Fill blanks on an existing player; prefer 'Smith' to 'SMITH'."""
     db.execute(
         "UPDATE Players SET"
         " position = COALESCE(position, ?),"
@@ -160,11 +155,6 @@ def get_or_create_player(
     position,
     jersey,
 ):
-    """Return (player_id, created).
-
-    New players go in `pending` until the game's transaction
-    commits, so a failed game can't leave bad ids in `index`.
-    """
     key = (team_id, *name_key(first, last))
     player_id = index.get(key) or pending.get(key)
     if player_id is not None:
@@ -184,11 +174,6 @@ def get_or_create_player(
 
 
 def dedupe_players(db):
-    """Merge player rows that are the same person on the same team.
-
-    Each group keeps its lowest player_id; stats from the other
-    rows move onto it. Returns how many rows were merged away.
-    """
     rows = db.execute(
         "SELECT DISTINCT s.team_id, p.player_id,"
         " p.first_name, p.last_name"
@@ -253,7 +238,6 @@ def dedupe_players(db):
 def import_game(
     db, index, game_id, game, fetch=get_api_data
 ):
-    """Save one game. Returns (players_added, stats_added)."""
     game_id = str(game_id)
     game_stats = fetch(f"/game/{game_id}/boxscore")
     game_info = fetch(f"/game/{game_id}")
@@ -491,7 +475,6 @@ def scrape_season(db, season=SEASON, fetch=get_api_data):
 
 
 def is_complete(db):
-    """True once a full season download has finished."""
     return (
         db.execute("PRAGMA user_version").fetchone()[0] >= 1
     )
@@ -500,26 +483,9 @@ def is_complete(db):
 def mark_complete(db):
     db.execute("PRAGMA user_version = 1")
 
-
-def prepare_database(db_path=DB_PATH):
-    """Create any missing tables.
-
-    Returns True if the season still needs downloading.
-    """
-    Path(db_path).parent.mkdir(parents=True, exist_ok=True)
-    with closing(sqlite3.connect(db_path)) as db:
-        ensure_schema(db)
-        return not is_complete(db)
-
-
 def fill_database(
     db_path=DB_PATH, fetch=get_api_data, update=False
 ):
-    """Download the season unless that's already been done.
-
-    An unfinished download (e.g. the app was closed partway)
-    picks up where it left off, since saved games are skipped.
-    """
     Path(db_path).parent.mkdir(parents=True, exist_ok=True)
     with closing(sqlite3.connect(db_path)) as db:
         ensure_schema(db)
