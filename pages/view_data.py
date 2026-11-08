@@ -16,16 +16,36 @@ from src.services.query_builder import (
     run_query,
 )
 
+CSS = """
+    .data-table thead th { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
+                           text-transform:uppercase; color:#7A849A; background:#F7F8FA; }
+    .data-table tbody td { font-size:14px; color:#2A3550; }
+    .data-table tbody tr:hover td { background:#F4F6FA; }
+    .filter-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:#7A849A; }
+    .vd-notice { gap:12px; padding:12px 16px; border-radius:12px; background:#FFF7E0; border:1px solid #F5D98A; color:#6B4E00; }
+    .vd-notice-spinner { color:#B07A00; }
+    .vd-notice-text { font-size:14px; font-weight:500; }
+    .vd-title { font-family:'Archivo',sans-serif; font-size:18px; font-weight:700; letter-spacing:-0.01em; color:%(dark2)s; }
+    .vd-filters { padding:20px; gap:16px; }
+    .vd-filter-grid { display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; }
+    .vd-columns-row { gap:12px; }
+    .vd-show-button { background:%(gold)s; color:#fff; font-weight:700; border-radius:10px; height:40px; }
+    .vd-results { padding:0; gap:0; overflow:hidden; }
+    .vd-results-head { padding:16px 20px; gap:8px; border-bottom:1px solid #E3E6EC; }
+    .vd-count { font-size:12px; font-weight:600; padding:2px 8px; border-radius:9999px; background:#EEF2F9; color:%(dark)s; }
+    .vd-rows { gap:0; }
+    .vd-empty { padding:64px 0; gap:8px; }
+    .vd-empty-icon { color:#B9C4D8; font-size:36px; }
+    .vd-empty-text { font-size:14px; color:#7A849A; }
+""" % {
+    "dark": PrimaryDarkHex,
+    "dark2": SecondaryDarkHex,
+    "gold": PrimaryLightHex,
+}
+
+
 DEFAULT_COLUMNS = PlayerFilters().columns
 DEFAULT_TEAM_NAME = "Kent State University"
-
-CSS = """
-.data-table thead th { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.08em;
-                       text-transform:uppercase; color:#7A849A; background:#F7F8FA; }
-.data-table tbody td { font-size:14px; color:#2A3550; }
-.data-table tbody tr:hover td { background:#F4F6FA; }
-.filter-label { font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:.1em; color:#7A849A; }
-"""
 
 
 def pretty(col: str) -> str:
@@ -47,78 +67,88 @@ def init():
             teams = list_teams(conn)
             downloading = not is_complete(conn)
         default_team = next(
-            (team_id for team_id, team_name in teams.items() if team_name == DEFAULT_TEAM_NAME),
+            (
+                team_id
+                for team_id, team_name in teams.items()
+                if team_name == DEFAULT_TEAM_NAME
+            ),
             None,
         )
         column_options = {col: pretty(col) for col in COLUMNS}
 
         with page_body():
-            page_header("HISTORY", "View Data", "Historical results and player statistics.")
+            page_header(
+                "HISTORY", "View Data", "Historical results and player statistics."
+            )
 
             if downloading:
-                with ui.row().classes("w-full items-center gap-3 no-wrap rounded-xl px-4 py-3").style(
-                    "background:#FFF7E0; border:1px solid #F5D98A; color:#6B4E00"
-                ):
-                    ui.spinner(size="18px").style("color:#B07A00")
+                with ui.row().classes("vd-notice w-full items-center no-wrap"):
+                    ui.spinner(size="18px").classes("vd-notice-spinner")
                     ui.label(
-                        "Game data is still downloading in the background. Results may be incomplete."
-                    ).classes("text-sm font-medium")
+                        "Game data is still downloading in the background. "
+                        "Results may be incomplete."
+                    ).classes("vd-notice-text")
 
             # Filters
-            with ui.column().classes("card w-full p-5 gap-4"):
+            with ui.column().classes("card vd-filters w-full"):
                 with ui.row().classes("w-full items-center justify-between"):
-                    ui.label("Filters").classes("font-display text-lg font-bold").style(
-                        f"color:{SecondaryDarkHex}"
-                    )
-                    ui.button("Reset", icon="restart_alt", on_click=lambda: reset()).props(
-                        "flat no-caps dense"
-                    ).style("color:#55607A")
+                    ui.label("Filters").classes("vd-title")
+                    ui.button(
+                        "Reset", icon="restart_alt", on_click=lambda: reset()
+                    ).props("flat no-caps dense")
 
-                with ui.element("div").classes("w-full grid gap-3").style(
-                    "grid-template-columns:repeat(auto-fit,minmax(200px,1fr))"
-                ):
-                    name = ui.input("Player name contains").props("outlined dense clearable")
-                    team = ui.select(
-                        teams, value=default_team, label="Team", clearable=True, with_input=True
-                    ).props("outlined dense").classes("team-select")
+                with ui.element("div").classes("vd-filter-grid w-full"):
+                    name = ui.input("Player name contains").props(
+                        "outlined dense clearable"
+                    )
+                    team = (
+                        ui.select(
+                            teams,
+                            value=default_team,
+                            label="Team",
+                            clearable=True,
+                            with_input=True,
+                        )
+                        .props("outlined dense")
+                        .classes("team-select")
+                    )
                     position = ui.select(
                         list(POSITION_GROUPS), label="Position", clearable=True
                     ).props("outlined dense")
-                    order_by = ui.select(column_options, label="Order by", value="last_name").props(
-                        "outlined dense"
-                    )
+                    order_by = ui.select(
+                        column_options, label="Order by", value="last_name"
+                    ).props("outlined dense")
 
-                with ui.row().classes("w-full items-end gap-3 no-wrap"):
-                    columns = ui.select(
-                        column_options,
-                        label="Columns",
-                        multiple=True,
-                        value=[c for c in COLUMNS if c in DEFAULT_COLUMNS],
-                    ).props("outlined dense use-chips").classes("flex-grow")
-                    show_button = ui.button("Show data", icon="search").props("unelevated no-caps").style(
-                        f"background:{PrimaryLightHex} !important; color:{SecondaryDarkHex};"
-                        "font-weight:700; border-radius:10px; height:40px"
+                with ui.row().classes("vd-columns-row w-full items-end no-wrap"):
+                    columns = (
+                        ui.select(
+                            column_options,
+                            label="Columns",
+                            multiple=True,
+                            value=[c for c in COLUMNS if c in DEFAULT_COLUMNS],
+                        )
+                        .props("outlined dense use-chips")
+                        .classes("flex-grow")
+                    )
+                    show_button = (
+                        ui.button("Show data", icon="search", color=None)
+                        .props("unelevated no-caps")
+                        .classes("vd-show-button")
                     )
 
             # Results
-            with ui.column().classes("card w-full p-0 gap-0 overflow-hidden"):
-                with ui.row().classes("w-full items-center gap-2 px-5 py-4").style(
-                    "border-bottom:1px solid #E3E6EC"
-                ):
-                    ui.label("Players").classes("font-display text-lg font-bold").style(
-                        f"color:{SecondaryDarkHex}"
-                    )
-                    count = ui.label("").classes("text-xs font-semibold px-2 py-0.5 rounded-full").style(
-                        f"background:#EEF2F9; color:{PrimaryDarkHex}"
-                    )
+            with ui.column().classes("card vd-results w-full"):
+                with ui.row().classes("vd-results-head w-full items-center"):
+                    ui.label("Players").classes("vd-title")
+                    count = ui.label("").classes("vd-count")
                     count.set_visibility(False)
-                results = ui.column().classes("w-full gap-0")
+                results = ui.column().classes("vd-rows w-full")
 
         def empty_state(icon: str, text: str):
             with results:
-                with ui.column().classes("w-full items-center justify-center gap-2 py-16"):
-                    ui.icon(icon).style("color:#B9C4D8; font-size:36px")
-                    ui.label(text).classes("text-sm").style("color:#7A849A")
+                with ui.column().classes("vd-empty w-full items-center justify-center"):
+                    ui.icon(icon).classes("vd-empty-icon")
+                    ui.label(text).classes("vd-empty-text")
 
         def reset():
             name.value = ""
@@ -154,7 +184,9 @@ def init():
                 show_button.props(remove="loading")
 
             if not rows:
-                empty_state("search_off", "No matching players found in the scraped game data.")
+                empty_state(
+                    "search_off", "No matching players found in the scraped game data."
+                )
                 return
 
             count.text = f"{len(rows)} row{'s' if len(rows) != 1 else ''}"
@@ -162,7 +194,13 @@ def init():
             with results:
                 ui.table(
                     columns=[
-                        {"name": c, "label": pretty(c), "field": c, "sortable": True, "align": "left"}
+                        {
+                            "name": c,
+                            "label": pretty(c),
+                            "field": c,
+                            "sortable": True,
+                            "align": "left",
+                        }
                         for c in filters.columns
                     ],
                     rows=rows,
