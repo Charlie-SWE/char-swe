@@ -2,13 +2,14 @@ import sqlite3
 from dataclasses import dataclass, field
 from pathlib import Path
 
+# The path to the database
 DB_PATH = (
     Path(__file__).resolve().parents[2]
     / "data"
     / "gaffer.db"
 )
 
-# Column name shown in the UI -> SQL expression.
+# Columns that are shown in the dropdown
 COLUMNS = {
     "player_id": "p.player_id",
     "jersey_number": "p.jersey_number",
@@ -20,8 +21,7 @@ COLUMNS = {
     "assists": "COALESCE(SUM(s.assists), 0)",
 }
 
-# The database stores positions inconsistently, so each
-# dropdown choice matches every raw value that means it.
+# Positions are named different things in the database so this is just a list of wha they actually mean
 POSITION_GROUPS = {
     "GK": ["GK", "GOALKEEPER", "gk"],
     "D": [
@@ -52,20 +52,19 @@ POSITION_GROUPS = {
         "f",
         "fwd",
     ],
-    "Unknown": ["n/a"],  # plus NULL, handled below
+    "Unknown": ["n/a"],
 }
 
 
+# Kind of like a TypeScript type haha
 @dataclass
 class PlayerFilters:
-    columns: list[str] = field(
-        default_factory=lambda: [
-            "first_name",
-            "last_name",
-            "position",
-            "goals",
-            "assists",
-        ]
+    columns: tuple[str, ...] = (
+        "first_name",
+        "last_name",
+        "position",
+        "goals",
+        "assists",
     )
     name: str | None = None
     team_id: int | None = None
@@ -75,7 +74,8 @@ class PlayerFilters:
     limit: int | None = None  # None = all matching rows
 
 
-def _escape_like(text: str) -> str:
+# Properly escapes the text
+def escape_like(text: str) -> str:
     return (
         text.replace("\\", "\\\\")
         .replace("%", "\\%")
@@ -86,16 +86,24 @@ def _escape_like(text: str) -> str:
 def build_player_query(
     f: PlayerFilters,
 ) -> tuple[str, list]:
+
+    # Makes sure the user picked at least one column
     if not f.columns:
         raise ValueError("Pick at least one column")
-    for col in f.columns + [f.order_by]:
+
+    # Makes sure that the columns the user selected are like real columns
+    for col in (*f.columns, f.order_by):
         if col not in COLUMNS:
             raise ValueError(f"Unknown column: {col}")
-    if f.limit is not None and (
-        not isinstance(f.limit, int) or f.limit < 1
-    ):
-        raise ValueError("Limit must be a positive number")
 
+    # Makes sure the limit isn't -1, None, and is a number
+    if f.limit is not None:
+        if not isinstance(f.limit, int) or f.limit < 1:
+            raise ValueError(
+                "Limit must be a positive number"
+            )
+
+    # Builds the query
     select = ", ".join(
         f"{COLUMNS[c]} AS {c}" for c in f.columns
     )
@@ -107,13 +115,15 @@ def build_player_query(
     where = []
     params: list = []
 
+    # If name exists, adds it to the query
     if f.name and f.name.strip():
         where.append(
             "(p.first_name || ' ' || p.last_name) "
             "LIKE ? ESCAPE '\\'"
         )
-        params.append(f"%{_escape_like(f.name.strip())}%")
+        params.append(f"%{escape_like(f.name.strip())}%")
 
+    # If Team ID exists, adds it to the query
     if f.team_id is not None:
         if not isinstance(f.team_id, int):
             raise ValueError("Team id must be a number")
@@ -123,6 +133,7 @@ def build_player_query(
         )
         params.append(f.team_id)
 
+    # If position exists, adds it to the qery
     if f.position is not None:
         if f.position not in POSITION_GROUPS:
             raise ValueError(
@@ -144,12 +155,16 @@ def build_player_query(
         " GROUP BY p.player_id"
         f" ORDER BY {COLUMNS[f.order_by]} {direction}"
     )
+
+    # Adds the limit to the query
     if f.limit is not None:
         sql += " LIMIT ?"
         params.append(f.limit)
+
     return sql, params
 
 
+# Runs the query
 def run_query(
     conn: sqlite3.Connection, sql: str, params: list
 ) -> list[dict]:
@@ -157,6 +172,7 @@ def run_query(
     return [dict(row) for row in conn.execute(sql, params)]
 
 
+# Lists teams, which is used in the dropdown
 def list_teams(conn: sqlite3.Connection) -> dict[int, str]:
     rows = conn.execute(
         "SELECT team_id, team_name FROM Teams "
