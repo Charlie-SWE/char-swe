@@ -3,7 +3,6 @@ from contextlib import closing
 
 from nicegui import run, ui
 
-from src.components.Colors import PrimaryDarkHex, PrimaryLightHex, SecondaryDarkHex
 from src.components.Layout import frame, page_body, page_header
 from src.components.Scrape import is_complete
 from src.services.query_builder import (

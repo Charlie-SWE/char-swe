@@ -35,6 +35,9 @@ def load_css():
     # Colors needs to be first!! Its used in later CSS files
     ui.add_css(CSS_DIR / "colors.css", shared=True)
 
+    # Genric CSS
+    ui.add_css(CSS_DIR / "styles.css", shared=True)
+
     # Page styles
     ui.add_css(CSS_DIR / "calendar.css", shared=True)
     ui.add_css(CSS_DIR / "chat.css", shared=True)
