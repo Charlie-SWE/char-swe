@@ -15,7 +15,7 @@ def init():
                 is_dark = str(e.value).lower()
 
                 await ui.run_javascript(f"""
-                    document.body.classList.toggle('dark-theme', {is_dark});
+                    document.documentElement.classList.toggle('dark-theme', {is_dark});
                     localStorage.setItem('gaffer-dark-mode', '{is_dark}');
                 """)
 
