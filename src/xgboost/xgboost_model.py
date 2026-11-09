@@ -32,9 +32,9 @@ class XGBoostModel:
         predictions = self.model.predict(self.X_test)
         mse = mean_squared_error(self.y_test, predictions)
         return mse
-
     def make_prediction(self, input_features: pd.DataFrame):
-        return float(self.model.predict(input_features))
+        prediction_array = self.model.predict(input_features)
+        return float(prediction_array[0])
 
     def save_model(self, filepath: str = 'player_goals_xgb.json'):
         self.model.save_model(filepath)
