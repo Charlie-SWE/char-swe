@@ -27,10 +27,27 @@ HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 
 
 # Giving rocky basic context
-def get_context():
+def get_context(limit=10):
 
+    games = get_games(games=limit)
     message = "Refer to me as Dr. Gaffer.\n"
-    print(message)
+
+    print("RUN!")
+    for g in games:
+
+        # Handles the date part
+        message += f"We played a game on "
+        if g["date"]:
+            day = g["date"].day
+            month = g["date"].month
+            year = g["date"].year
+            message += f"{month}/{day}/{year}."
+        else:
+            message += "an unknown date."
+
+        message += "\n"
+
+    print(f"MESSAGE:::::{message}")
 
     return message
 
