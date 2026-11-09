@@ -30,13 +30,23 @@ HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 def get_context(limit=10):
 
     games = get_games(games=limit)
-    message = "Refer to me as Dr. Gaffer.\n"
+    message = f"We are Kent State University. Our {limit} most recent games are:\n"
 
     print("RUN!")
     for g in games:
 
+
+        # Builds the message
+        message += f"We played "
+
+        # Home or away
+        if g["home"]:
+            message += "a home "
+        else:
+            message += "an away "
+        message += "game on "
+
         # Handles the date part
-        message += f"We played a game on "
         if g["date"]:
             day = g["date"].day
             month = g["date"].month
@@ -44,6 +54,32 @@ def get_context(limit=10):
             message += f"{month}/{day}/{year}."
         else:
             message += "an unknown date."
+
+        # Gets the score 
+        our_score, their_score = g["score"]
+        if not g["home"]:
+            # If not home, it flips the order
+            our_score = g["score"][1]
+            their_score = g["score"][0]
+
+        # Win lose or draw
+        message += " We"
+        if our_score > their_score:
+            message += " won"
+        elif our_score < their_score:
+            message += " lost"
+        else:
+            message += " drew"
+
+        # Who we played against
+        message += " against"
+        if g["opponent"]:
+            message += f" {g["opponent"]}."
+        else:
+            message += " an unknown team."
+
+        # Score
+        message += f" Us {our_score} to their {their_score}."
 
         message += "\n"
 
