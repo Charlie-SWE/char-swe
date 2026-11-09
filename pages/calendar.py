@@ -1,5 +1,6 @@
 import calendar
 import sqlite3
+from datetime import date
 
 from nicegui import run, ui
 
