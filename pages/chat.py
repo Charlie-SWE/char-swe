@@ -3,6 +3,7 @@ import os
 import dotenv
 import requests
 from nicegui import run, ui
+from datetime import date
 
 from src.components.Colors import (
     PrimaryDarkHex,
@@ -11,6 +12,7 @@ from src.components.Colors import (
     SecondaryLightHex,
 )
 from src.components.Layout import frame, page_body, page_header
+from src.services.game_details import get_games
 
 dotenv.load_dotenv()
 
@@ -23,6 +25,17 @@ HAS_KEY = ROCKY_API_KEY != ""
 
 HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 
+
+# Giving rocky basic context
+def get_context():
+
+    message = "Refer to me as Dr. Gaffer.\n"
+    print(message)
+
+    return message
+
+
+context_test = get_context()
 
 # ---------- Rocky API ----------
 
@@ -53,6 +66,7 @@ def extract_text(data: dict) -> str:
 def ask_rocky(history: list[dict]) -> str:
     payload = {
         "model": get_model(),
+        "instructions": get_context(),
         "input": history,
         "max_output_tokens": 2048,
         "store": False,
