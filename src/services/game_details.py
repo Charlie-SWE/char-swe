@@ -1,5 +1,7 @@
 import sqlite3
 import time
+from contextlib import closing
+from datetime import date
 
 from src.components.Scrape import DB_PATH, get_api_data
 from src.services.weather import get_weather
@@ -416,3 +418,98 @@ def get_game_details(game):
 
     # Returns all of the game info
     return details
+
+
+# Pulls in all of the game data
+def get_games(
+    year: int | None = None,  # The year the games are in
+    month: int | None = None,  # The month the games are in
+    db_path=DB_PATH,
+    games: int = -1,  # Pulls X recent games
+) -> list[dict]:
+
+    # Makes a new database connection
+    with closing(sqlite3.connect(db_path)) as db:
+        if games == -1:
+
+            # Only pulls these if the user does pass games count
+            first = date(year, month, 1)
+            nxt = date(year + month // 12, month % 12 + 1, 1)
+
+            rows = db.execute(
+                """
+                SELECT g.game_date, g.home_team_id, g.home_score, g.away_score,
+                       h.team_name, a.team_name, g.location,
+                       g.game_id, g.away_team_id
+                FROM Games g
+                JOIN Teams h ON h.team_id = g.home_team_id
+                JOIN Teams a ON a.team_id = g.away_team_id
+                WHERE (g.home_team_id = ? OR g.away_team_id = ?)
+                  AND g.game_date >= ? AND g.game_date < ?
+                ORDER BY g.game_date
+                """,
+                (
+                    OUR_TEAM_ID,
+                    OUR_TEAM_ID,
+                    first.isoformat(),
+                    nxt.isoformat(),
+                ),
+            ).fetchall()
+        else:
+            # If we pass in games as something that isn't -1
+            # Then we don't care about month or year anymore :)
+
+            rows = db.execute(
+                """
+                SELECT g.game_date, g.home_team_id, g.home_score, g.away_score,
+                       h.team_name, a.team_name, g.location,
+                       g.game_id, g.away_team_id
+                FROM Games g
+                JOIN Teams h ON h.team_id = g.home_team_id
+                JOIN Teams a ON a.team_id = g.away_team_id
+                WHERE (g.home_team_id = ? OR g.away_team_id = ?)
+                  AND g.game_date <= ?
+                ORDER BY g.game_date DESC
+                LIMIT ?
+                """,
+                (
+                    OUR_TEAM_ID,
+                    OUR_TEAM_ID,
+                    date.today().isoformat(),
+                    games,
+                ),
+            ).fetchall()
+
+    games = []
+
+    # Iterates through every row and pulls the game data
+    for (
+        game_date,
+        home_id,
+        home_score,
+        away_score,
+        home_name,
+        away_name,
+        location,
+        game_id,
+        away_id,
+    ) in rows:
+
+        # Checks if we are the home team
+        home = False
+        if home_id == OUR_TEAM_ID:
+            home = True
+
+        # Make each game into a dictionary
+        game = {
+            "game_id": game_id,
+            "date": date.fromisoformat(game_date),
+            "home": home,
+            "opponent": away_name if home else home_name,
+            "opponent_id": away_id if home else home_id,
+            "location": location,
+            "score": (home_score, away_score),
+        }
+
+        games.append(game)
+    return games
