@@ -32,7 +32,6 @@ def get_context(limit=10):
     games = get_games(games=limit)
     message = f"We are Kent State University. Our {limit} most recent games are:\n"
 
-    print("RUN!")
     for g in games:
 
 
@@ -82,8 +81,6 @@ def get_context(limit=10):
         message += f" Us {our_score} to their {their_score}."
 
         message += "\n"
-
-    print(f"MESSAGE:::::{message}")
 
     return message
 
