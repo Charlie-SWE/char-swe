@@ -1,8 +1,15 @@
-from src.components.Layout import frame
 from nicegui import ui
 import pandas as pd
 import sqlite3
 from src.xgboost.xgboost_model import XGBoostModel
+from src.components.Layout import frame, page_header, page_body
+from src.components.Colors import (
+    PrimaryDarkHex,
+    PrimaryLightHex,
+    SecondaryDarkHex,
+    SecondaryYellowHex,
+    SecondaryLightHex,
+)
 
 DB_PATH = 'data/gaffer.db'
 
@@ -55,49 +62,50 @@ def execute_pipeline(y_select, result_display):
     except Exception as e:
         ui.notify(f'An error occurred: {e}', type='negative')
 
+def txt_clean(text: str):
+    return text.strip().lower().replace('_', ' ').capitalize()
 
 def init():
     @ui.page('/xgboost')
     def xgboost_page():
-        frame()
-        ui.label("XGBoost").classes("text-4xl font-bold")
-        
-        x_checkboxes.clear()
-        prediction_inputs.clear()
-        with ui.column().classes('w-full max-w-6xl mt-6'):
-            with ui.row().classes('w-full gap-8 items-start'):
-                
-                # column 1: x variables
-                with ui.column().classes('flex-1'):
-                    ui.label('1. Select X Variables').classes('text-xl font-semibold mb-2')
-                    for stat in AVAILABLE_STATS:
-                        x_checkboxes[stat] = ui.checkbox(stat, on_change=lambda: dynamic_input_section.refresh())
-                        
-                # column 2: y variable
-                with ui.column().classes('flex-1'):
-                    ui.label('2. Select Target Y Variable').classes('text-xl font-semibold mb-2')
-                    y_select = ui.select(AVAILABLE_STATS, value='goals').classes('w-full')
-
-                # column 3: results
-                with ui.column().classes('flex-1'):
-                    ui.label('3. Enter Inputs & Predict').classes('text-xl font-semibold mb-2')
-                    
-                    @ui.refreshable
-                    def dynamic_input_section():
-                        active_x = [col for col, cb in x_checkboxes.items() if cb.value]
-                        prediction_inputs.clear()
-                        
-                        if not active_x:
-                            ui.label('Select X variables to reveal prediction inputs.').classes('text-gray-500 italic mt-2')
-                            return
-                            
-                        # Stack inputs vertically within this 3rd column
-                        with ui.column().classes('gap-2 mb-4 w-full'):
-                            for col in active_x:
-                                prediction_inputs[col] = ui.number(label=col, value=0.0, format='%.2f').classes('w-full')
+        frame("xgboost")
+        with page_body():
+            page_header("XGBoost Model", "Train a model to predict player stats based on selected features.")
+            x_checkboxes.clear()
+            prediction_inputs.clear()
             
-                        ui.button('Train Model & Predict', on_click=lambda: execute_pipeline(y_select, result_display)).classes('bg-blue-600 text-white w-full')
-
-                    dynamic_input_section()
+            with ui.column().classes('w-full max-w-6xl mt-6'):
+                with ui.row().classes('w-full gap-8 items-start'):
                     
-                    result_display = ui.label('').classes('text-2xl font-bold text-green-700 mt-4')
+                    # column 1: x variables
+                    with ui.column().classes('flex-1'):
+                        ui.label('1. Select X Variables').classes('font-display text-2xl font-bold')
+                        for stat in AVAILABLE_STATS:
+                            x_checkboxes[stat] = ui.checkbox(txt_clean(stat), on_change=lambda: dynamic_input_section.refresh())
+                            
+                    # column 2: y variable
+                    with ui.column().classes('flex-1'):
+                        ui.label('2. Select Target Y Variable').classes('font-display text-2xl font-bold')
+                        y_select = ui.select(AVAILABLE_STATS, value='goals').classes('w-full')
+
+                    # column 3: results
+                    with ui.column().classes('flex-1'):
+                        ui.label('3. Enter Inputs & Predict').classes('font-display text-2xl font-bold')
+                        
+                        @ui.refreshable
+                        def dynamic_input_section():
+                            active_x = [col for col, cb in x_checkboxes.items() if cb.value]
+                            prediction_inputs.clear()
+                            
+                            if not active_x:
+                                ui.label('Select X variables to reveal prediction inputs.').classes('text-gray-500 font-display')
+                                return
+                            with ui.column().classes('gap-2 font-display w-full'):
+                                for col in active_x:
+                                    prediction_inputs[col] = ui.number(label=col, value=0.0, format='%.2f').classes('w-full')
+                
+                            ui.button('Train Model & Predict', on_click=lambda: execute_pipeline(y_select, result_display)).classes('bg-blue-600 text-white w-full')
+
+                        dynamic_input_section()
+                        
+                        result_display = ui.label('').classes('text-2xl font-bold text-green-700 mt-4')

@@ -12,6 +12,7 @@ NAV_ITEMS = [
     ("data", "View Data", "table_chart", "/view-data"),
     ("chat", "Chat", "smart_toy", "/chat"),
     ("weather", "Weather", "cloud", "/weather"),
+    ("xgboost", "XGBoost", "insights", "/xgboost"),
     ("settings", "Settings", "settings", "/settings"),
 ]
 
