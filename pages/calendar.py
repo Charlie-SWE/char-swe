@@ -1,7 +1,5 @@
 import calendar
 import sqlite3
-from contextlib import closing
-from datetime import date
 
 from nicegui import run, ui
 
@@ -18,7 +16,7 @@ from src.components.Layout import (
     page_body,
     page_header,
 )
-from src.services.game_details import get_game_details
+from src.services.game_details import get_game_details, get_games
 
 # The ID of kent
 OUR_TEAM_ID = 55287
@@ -67,68 +65,6 @@ def where_text(game: dict) -> str:
 
     # Returns nothing if it has neither :(
     return ""
-
-
-# Pulls in all of the game data
-def get_games(year: int, month: int, db_path=DB_PATH) -> list[dict]:
-    first = date(year, month, 1)
-    nxt = date(year + month // 12, month % 12 + 1, 1)
-
-    # Makes a new database connection
-    with closing(sqlite3.connect(db_path)) as db:
-        rows = db.execute(
-            """
-            SELECT g.game_date, g.home_team_id, g.home_score, g.away_score,
-                   h.team_name, a.team_name, g.location,
-                   g.game_id, g.away_team_id
-            FROM Games g
-            JOIN Teams h ON h.team_id = g.home_team_id
-            JOIN Teams a ON a.team_id = g.away_team_id
-            WHERE (g.home_team_id = ? OR g.away_team_id = ?)
-              AND g.game_date >= ? AND g.game_date < ?
-            ORDER BY g.game_date
-            """,
-            (
-                OUR_TEAM_ID,
-                OUR_TEAM_ID,
-                first.isoformat(),
-                nxt.isoformat(),
-            ),
-        ).fetchall()
-
-    games = []
-
-    # Iterates through every row and pulls the game data
-    for (
-        game_date,
-        home_id,
-        home_score,
-        away_score,
-        home_name,
-        away_name,
-        location,
-        game_id,
-        away_id,
-    ) in rows:
-
-        # Checks if we are the home team
-        home = False
-        if home_id == OUR_TEAM_ID:
-            home = True
-
-        # Make each game into a dictionary
-        game = {
-            "game_id": game_id,
-            "date": date.fromisoformat(game_date),
-            "home": home,
-            "opponent": away_name if home else home_name,
-            "opponent_id": away_id if home else home_id,
-            "location": location,
-            "score": (home_score, away_score),
-        }
-
-        games.append(game)
-    return games
 
 
 # The actual page stuff !!!
