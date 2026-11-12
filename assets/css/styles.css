@@ -245,3 +245,41 @@ body.dark-theme input[type="date"] {
     color-scheme: dark;
     color: var(--text-color) !important;
 }
+
+/* View Data dark mode fixes */
+
+/* Filters and Players headings */
+body.dark-theme .vd-filters .vd-title,
+body.dark-theme .vd-results .vd-title {
+    color: var(--text-color) !important;
+}
+
+/* Make filter input and dropdown boxes white */
+body.dark-theme .vd-filters .q-field__control {
+    background-color: #ffffff !important;
+}
+
+body.dark-theme .vd-filters .q-field__native,
+body.dark-theme .vd-filters .q-field__input,
+body.dark-theme .vd-filters .q-field__marginal {
+    color: #1f2937 !important;
+}
+
+body.dark-theme .vd-filters .q-field__label {
+    color: #6b7280 !important;
+}
+
+/* Selected column chips */
+body.dark-theme .vd-filters .q-chip {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+body.dark-theme .vd-filters .q-chip .q-icon {
+    color: #d1d5db !important;
+}
+
+/* Filter field borders */
+body.dark-theme .vd-filters .q-field__control:before {
+    border-color: #9ca3af !important;
+}
