@@ -223,3 +223,19 @@ body.dark-theme .q-menu {
 body.dark-theme .q-item {
     color: var(--text-color) !important;
 }
+
+/* Calendar game days dark mode */
+body.dark-theme .cal-cell.has-game {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+body.dark-theme .cal-cell.has-game:hover {
+    background-color: #374151 !important;
+}
+
+body.dark-theme .cal-result,
+body.dark-theme .cal-opponent,
+body.dark-theme .cal-where {
+    color: #d1d5db !important;
+}
