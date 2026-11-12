@@ -314,3 +314,13 @@ body.dark-theme .data-table .q-table__bottom {
 body.dark-theme .data-table .q-icon {
     color: var(--text-color) !important;
 }
+
+/* Weather input borders in dark mode */
+body.dark-theme .nicegui-content input[type="text"],
+body.dark-theme .nicegui-content input[type="date"] {
+    border-color: #9ca3af !important;
+}
+
+body.dark-theme .nicegui-content .q-field__control:before {
+    border-color: #9ca3af !important;
+}
