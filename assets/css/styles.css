@@ -324,3 +324,16 @@ body.dark-theme .nicegui-content input[type="date"] {
 body.dark-theme .nicegui-content .q-field__control:before {
     border-color: #9ca3af !important;
 }
+
+/* Prevent calendar game-day flash on initial load */
+html[data-theme="dark"] .cal-cell.has-game {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+html[data-theme="dark"] .cal-cell.has-game .cal-num,
+html[data-theme="dark"] .cal-cell.has-game .cal-result,
+html[data-theme="dark"] .cal-cell.has-game .cal-opponent,
+html[data-theme="dark"] .cal-cell.has-game .cal-where {
+    color: #d1d5db !important;
+}
