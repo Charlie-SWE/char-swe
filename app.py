@@ -12,7 +12,6 @@ from pages import (
     xgboost,
 )
 
-
 def main():
     # Imports all of the CSS
     load_css()
