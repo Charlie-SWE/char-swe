@@ -1,5 +1,5 @@
 import threading
-from nicegui import app, ui
+from nicegui import app, ui, core
 from src.components.Colors import load_css
 
 from pages import (
@@ -12,7 +12,7 @@ from pages import (
     xgboost,
 )
 
-
+core.app.config.socket_io_js_transports = ["polling"]
 def main():
     # Imports all of the CSS
     load_css()
