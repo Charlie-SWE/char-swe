@@ -190,3 +190,36 @@ body.dark-theme .team-select .q-field__marginal {
 body.dark-theme .team-select .q-field__label {
     color: #9ca3af !important;
 }
+
+/* XGBoost dark mode */
+body.dark-theme .q-checkbox__inner {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .q-checkbox__inner--truthy {
+    color: #f0b323 !important;
+}
+
+body.dark-theme .xgboost-select .q-field__control {
+    background-color: var(--card-bg) !important;
+}
+
+body.dark-theme .xgboost-select .q-field__native,
+body.dark-theme .xgboost-select .q-field__input,
+body.dark-theme .xgboost-select .q-field__marginal {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .xgboost-select .q-field__label {
+    color: #9ca3af !important;
+}
+
+/* Dropdown menu */
+body.dark-theme .q-menu {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .q-item {
+    color: var(--text-color) !important;
+}
