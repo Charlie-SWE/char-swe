@@ -254,20 +254,24 @@ body.dark-theme .vd-results .vd-title {
     color: var(--text-color) !important;
 }
 
-/* Make filter input and dropdown boxes white */
 body.dark-theme .vd-filters .q-field__control {
-    background-color: #ffffff !important;
+    background-color: var(--card-bg) !important;
 }
 
 body.dark-theme .vd-filters .q-field__native,
 body.dark-theme .vd-filters .q-field__input,
 body.dark-theme .vd-filters .q-field__marginal {
-    color: #1f2937 !important;
+    color: var(--text-color) !important;
 }
 
 body.dark-theme .vd-filters .q-field__label {
-    color: #6b7280 !important;
+    color: #d1d5db !important;
 }
+
+body.dark-theme .vd-filters .q-field__control:before {
+    border-color: #9ca3af !important;
+}
+
 
 /* Selected column chips */
 body.dark-theme .vd-filters .q-chip {
