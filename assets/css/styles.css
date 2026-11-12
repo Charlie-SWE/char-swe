@@ -240,25 +240,8 @@ body.dark-theme .cal-where {
     color: #d1d5db !important;
 }
 
-/* Weather date picker dark mode */
-body.dark-theme .q-date {
-    background-color: var(--card-bg) !important;
-    color: var(--text-color) !important;
-}
-
-body.dark-theme .q-date__view,
-body.dark-theme .q-date__calendar-days-container {
-    background-color: var(--card-bg) !important;
-}
-
-body.dark-theme .q-date__calendar-item {
-    color: var(--text-color) !important;
-}
-
-body.dark-theme .q-date__header {
-    background-color: #374151 !important;
-}
-
-body.dark-theme .q-date__navigation .q-btn {
+/* Native date input dark mode */
+body.dark-theme input[type="date"] {
+    color-scheme: dark;
     color: var(--text-color) !important;
 }
