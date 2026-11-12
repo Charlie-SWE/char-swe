@@ -287,3 +287,30 @@ body.dark-theme .vd-filters .q-chip .q-icon {
 body.dark-theme .vd-filters .q-field__control:before {
     border-color: #9ca3af !important;
 }
+
+/* View Data results table dark mode */
+body.dark-theme .data-table .q-table__container,
+body.dark-theme .data-table .q-table,
+body.dark-theme .data-table thead,
+body.dark-theme .data-table tbody,
+body.dark-theme .data-table tr {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .data-table th,
+body.dark-theme .data-table td {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .data-table .q-table__bottom {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .data-table .q-icon {
+    color: var(--text-color) !important;
+}
