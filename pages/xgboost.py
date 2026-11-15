@@ -86,7 +86,7 @@ def init():
                     # column 2: y variable
                     with ui.column().classes('flex-1'):
                         ui.label('2. Select Target Y Variable').classes('font-display text-2xl font-bold')
-                        y_select = ui.select(AVAILABLE_STATS, value='goals').classes('w-full')
+                        y_select = ui.select(AVAILABLE_STATS, value='goals').classes('w-full xgboost-select')
 
                     # column 3: results
                     with ui.column().classes('flex-1'):

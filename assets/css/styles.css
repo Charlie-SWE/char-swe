@@ -190,3 +190,150 @@ body.dark-theme .team-select .q-field__marginal {
 body.dark-theme .team-select .q-field__label {
     color: #9ca3af !important;
 }
+
+/* XGBoost dark mode */
+body.dark-theme .q-checkbox__inner {
+    color: #9ca3af !important;
+}
+
+body.dark-theme .q-checkbox__inner--truthy {
+    color: #f0b323 !important;
+}
+
+body.dark-theme .xgboost-select .q-field__control {
+    background-color: var(--card-bg) !important;
+}
+
+body.dark-theme .xgboost-select .q-field__native,
+body.dark-theme .xgboost-select .q-field__input,
+body.dark-theme .xgboost-select .q-field__marginal {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .xgboost-select .q-field__label {
+    color: #9ca3af !important;
+}
+
+/* Dropdown menu */
+body.dark-theme .q-menu {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .q-item {
+    color: var(--text-color) !important;
+}
+
+/* Calendar game days dark mode */
+body.dark-theme .cal-cell.has-game {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+body.dark-theme .cal-cell.has-game:hover {
+    background-color: #374151 !important;
+}
+
+body.dark-theme .cal-result,
+body.dark-theme .cal-opponent,
+body.dark-theme .cal-where {
+    color: #d1d5db !important;
+}
+
+/* Native date input dark mode */
+body.dark-theme input[type="date"] {
+    color-scheme: dark;
+    color: var(--text-color) !important;
+}
+
+/* View Data dark mode fixes */
+
+/* Filters and Players headings */
+body.dark-theme .vd-filters .vd-title,
+body.dark-theme .vd-results .vd-title {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .vd-filters .q-field__control {
+    background-color: var(--card-bg) !important;
+}
+
+body.dark-theme .vd-filters .q-field__native,
+body.dark-theme .vd-filters .q-field__input,
+body.dark-theme .vd-filters .q-field__marginal {
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .vd-filters .q-field__label {
+    color: #d1d5db !important;
+}
+
+body.dark-theme .vd-filters .q-field__control:before {
+    border-color: #9ca3af !important;
+}
+
+
+/* Selected column chips */
+body.dark-theme .vd-filters .q-chip {
+    background-color: #374151 !important;
+    color: #f9fafb !important;
+}
+
+body.dark-theme .vd-filters .q-chip .q-icon {
+    color: #d1d5db !important;
+}
+
+/* Filter field borders */
+body.dark-theme .vd-filters .q-field__control:before {
+    border-color: #9ca3af !important;
+}
+
+/* View Data results table dark mode */
+body.dark-theme .data-table .q-table__container,
+body.dark-theme .data-table .q-table,
+body.dark-theme .data-table thead,
+body.dark-theme .data-table tbody,
+body.dark-theme .data-table tr {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+}
+
+body.dark-theme .data-table th,
+body.dark-theme .data-table td {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .data-table .q-table__bottom {
+    background-color: var(--card-bg) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+body.dark-theme .data-table .q-icon {
+    color: var(--text-color) !important;
+}
+
+/* Weather input borders in dark mode */
+body.dark-theme .nicegui-content input[type="text"],
+body.dark-theme .nicegui-content input[type="date"] {
+    border-color: #9ca3af !important;
+}
+
+body.dark-theme .nicegui-content .q-field__control:before {
+    border-color: #9ca3af !important;
+}
+
+/* Prevent calendar game-day flash on initial load */
+html[data-theme="dark"] .cal-cell.has-game {
+    background-color: #1f2937 !important;
+    border-color: #374151 !important;
+}
+
+html[data-theme="dark"] .cal-cell.has-game .cal-num,
+html[data-theme="dark"] .cal-cell.has-game .cal-result,
+html[data-theme="dark"] .cal-cell.has-game .cal-opponent,
+html[data-theme="dark"] .cal-cell.has-game .cal-where {
+    color: #d1d5db !important;
+}
