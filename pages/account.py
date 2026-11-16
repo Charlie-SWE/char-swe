@@ -27,9 +27,11 @@ def init():
 
     @ui.page('/register')
     def register_page():
+        def submit_register():
+            register(username.value, password.value)
         ui.label("Create an account").classes("text-4xl font-bold")
 
         username = ui.input("Username").props("autofocus").on("keydown.enter", lambda: password.run_method("focus"))
         password = ui.input("Password", password=True, password_toggle_button=True).on("keydown.enter", register)
-        ui.button("Register", on_click=lambda: register(username, password))
+        ui.button("Register", on_click=submit_register)
         
