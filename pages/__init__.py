@@ -1,3 +1,3 @@
-from . import landing, calendar, settings, chat
+from . import landing, calendar, settings, chat, xgboost, view_data, weather
 
-__all__ = ['landing', 'calendar', 'settings', 'chat'] #need to add chat once implemented
+__all__ = ['landing', 'calendar', 'settings', 'chat', 'xgboost', 'view_data', 'weather'] 

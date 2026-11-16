@@ -2,6 +2,18 @@ from nicegui import ui, app
 from fastapi import Request
 from fastapi.responses import RedirectResponse
 from starlette.middleware.base import BaseHTTPMiddleware
+import threading
+from src.components.Colors import load_css
+
+from pages import (
+    landing,
+    calendar,
+    settings,
+    chat,
+    view_data,
+    weather,
+    xgboost,
+)
 
 from src.components.Env import STORAGE_SECRET
 
@@ -23,13 +35,23 @@ class AuthMiddleware(BaseHTTPMiddleware):
         return RedirectResponse(f'/login?redirect_to={path}')
     
 def main():
-    landing.init() # layout now handeled by src/components/Layout.py
+    # Imports all of the CSS
+    load_css()
+
+    # Loads all of the pages
+    landing.init()
     calendar.init()
     settings.init()
     chat.init()
     account.init()
     view_data.init()
-    ui.run(storage_secret=STORAGE_SECRET)
+    weather.init()
+    app.add_static_files("/assets", "assets")
+
+    # Loads the favicon
+    xgboost.init()
+    ui.run(favicon="favicon.svg", storage_secret=STORAGE_SECRET)
+
 
 if __name__ in {"__main__", "__mp_main__"}:
     main()

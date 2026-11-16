@@ -1,6 +1,7 @@
-# RGB 
+### Old colors that will hopefully be converted to being in colors.css
+# RGB
 PrimaryDark = (0, 57, 118)
-PrimaryLight = (235, 171, 32)
+PrimaryLight = (239, 171, 0)
 
 SecondaryLight = (44, 142, 206)
 SecondaryDark = (0, 41, 95)
@@ -9,7 +10,7 @@ SecondaryYellow = (255, 215, 0)
 SecondaryGray = (150, 160, 165)
 SecondaryLightGray = (181, 184, 181)
 
-# HEX 
+# HEX
 PrimaryDarkHex = "#003976"
 PrimaryLightHex = "#EFAB00"
 
@@ -19,3 +20,25 @@ SecondaryDarkHex = "#00295F"
 SecondaryYellowHex = "#FFD702"
 SecondaryGrayHex = "#96A0A5"
 SecondaryLightGrayHex = "#B5B8B5"
+
+from nicegui import ui
+from pathlib import Path
+
+# for me outputs C:\Coding\gaffer
+PROJECT_ROOT = Path(__file__).resolve().parents[2]
+
+# for me outputs C:\Coding\gaffer\pages\css
+CSS_DIR = PROJECT_ROOT / "pages" / "css"
+
+
+def load_css():
+    # Colors needs to be first!! Its used in later CSS files
+    ui.add_css(CSS_DIR / "colors.css", shared=True)
+
+    # Genric CSS
+    ui.add_css(CSS_DIR / "styles.css", shared=True)
+
+    # Page styles
+    ui.add_css(CSS_DIR / "calendar.css", shared=True)
+    ui.add_css(CSS_DIR / "chat.css", shared=True)
+    ui.add_css(CSS_DIR / "view_data.css", shared=True)

@@ -1,0 +1,15 @@
+.data-table thead th {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #7a849a;
+  background: #f7f8fa;
+}
+.data-table tbody td {
+  font-size: 14px;
+  color: #2a3550;
+}
+.data-table tbody tr:hover td {
+  background: #f4f6fa;
+}
