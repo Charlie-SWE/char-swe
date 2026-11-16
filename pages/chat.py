@@ -2,7 +2,7 @@ import os
 
 import dotenv
 import requests
-from nicegui import run, ui
+from nicegui import run, ui, app
 from datetime import date
 
 from src.components.Colors import (
@@ -12,6 +12,7 @@ from src.components.Colors import (
     SecondaryLightHex,
 )
 from src.components.Layout import frame, page_body, page_header
+from src.components.Auth import create_session, log_message
 from src.services.game_details import get_games
 
 dotenv.load_dotenv()
@@ -114,6 +115,7 @@ def extract_text(data: dict) -> str:
 
 
 def ask_rocky(history: list[dict]) -> str:
+    return f"you said: {history[len(history)-1]}"
     payload = {
         "model": get_model(),
         "instructions": get_context(),
@@ -189,6 +191,8 @@ def init():
         history: list[dict] = []
         busy = {"on": False}
 
+        session_id = create_session()
+
         def scroll_down():
             ui.run_javascript(
                 "window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
@@ -212,6 +216,7 @@ def init():
                 user_bubble(prompt)
                 pending = thinking_row()
             history.append({"role": "user", "content": prompt})
+            log_message(session_id, prompt, "user")
             scroll_down()
 
             try:
@@ -224,6 +229,7 @@ def init():
                 ui.notify(f"Rocky returned an error: {e}", type="negative")
             else:
                 history.append({"role": "assistant", "content": reply})
+                log_message(session_id, reply, "ai")
                 with messages:
                     bot_bubble(reply)
             finally:
