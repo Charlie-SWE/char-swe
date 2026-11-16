@@ -3,3 +3,4 @@ __pycache__
 .env
 .env.test
 .nicegui
+data/userdb/data.db
