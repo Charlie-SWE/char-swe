@@ -1,5 +1,5 @@
 import requests
-from nicegui import run, ui
+from nicegui import run, ui, app
 from datetime import date
 
 from src.components.Colors import (
@@ -10,6 +10,7 @@ from src.components.Colors import (
 )
 from src.components.Layout import frame, page_body, page_header
 from src.components.Env import ROCKY_API_KEY
+from src.components.Auth import create_session, log_message
 from src.services.game_details import get_games
 
 BASE_URL = "https://rocky.cs.kent.edu/v1"
@@ -209,6 +210,8 @@ def init():
         history: list[dict] = []
         busy = {"on": False}
 
+        session_id = create_session()
+
         def scroll_down():
             ui.run_javascript(
                 "window.scrollTo({top: document.body.scrollHeight, behavior: 'smooth'})"
@@ -232,6 +235,7 @@ def init():
                 user_bubble(prompt)
                 pending = thinking_row()
             history.append({"role": "user", "content": prompt})
+            log_message(session_id, prompt, "user")
             scroll_down()
 
             try:
@@ -244,6 +248,7 @@ def init():
                 ui.notify(f"Rocky returned an error: {e}", type="negative")
             else:
                 history.append({"role": "assistant", "content": reply})
+                log_message(session_id, reply, "ai")
                 with messages:
                     bot_bubble(reply)
             finally:
