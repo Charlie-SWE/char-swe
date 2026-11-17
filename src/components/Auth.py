@@ -5,6 +5,9 @@ from os import urandom
 
 from src.components.Database import db
 
+import re
+
+
 def hash_password(password, salt = urandom(32)):
     hash = pbkdf2_hmac("sha256", password.encode("utf-8"), salt, 100000)
     return (salt + hash).hex()
@@ -25,17 +28,46 @@ def register(username, password):
     cur = database.cursor()
     cur.execute(
         """
+        SELECT * FROM User
+        WHERE user_id = :username;
+        """,
+        {
+            "username": username
+        }
+    )
+    result = cur.fetchone()
+
+    
+    # Disallow identical user id
+    if (result != None):
+        raise Exception(f"Username \"{username}\" is already in use. Please choose another.")
+
+    # Empty Username
+    if (username == ""):
+        raise Exception(f"Please enter a username.")
+
+    # Disallow insufficient password
+    if (len(password) < 8):
+        raise Exception(f"Password must be at least 8 characters long.")
+
+    pass_hash = hash_password(password)
+    
+    cur.execute(
+        """
         INSERT INTO User 
         (user_id, pass)
         VALUES (:username, :pass);
         """, 
         {
             "username": username,
-            "pass": hash_password(password)
+            "pass": pass_hash
         }
     )
     database.commit()
-    ui.navigate.to("/login")
+
+    login(username, password)
+
+    ui.navigate.to("/")
 
 def logout():
     app.storage.clear()
