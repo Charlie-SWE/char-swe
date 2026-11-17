@@ -115,7 +115,6 @@ def extract_text(data: dict) -> str:
 
 
 def ask_rocky(history: list[dict]) -> str:
-    return f"you said: {history[len(history)-1]}"
     payload = {
         "model": get_model(),
         "instructions": get_context(),

@@ -19,6 +19,7 @@ from src.components.Env import STORAGE_SECRET
 
 from pages import account, landing, calendar, settings, chat, view_data
 
+from src.tools.init_db import init_db
 
 # USER AUTHENTICATION
 # If a user is not logged in, they will be redirected to /login
@@ -33,7 +34,10 @@ class AuthMiddleware(BaseHTTPMiddleware):
         if app.storage.user.get('authenticated') or path in public_routes or path.startswith('/_nicegui'):
             return await call_next(request)
         return RedirectResponse(f'/login?redirect_to={path}')
-    
+
+# Initialize Database
+init_db()
+
 def main():
     # Imports all of the CSS
     load_css()
