@@ -21,8 +21,14 @@ def init():
                 ui.label("Login").classes("text-4xl font-bold")
 
                 def submit_login():
-                    if login(username.value, password.value):
-                        ui.navigate.to(redirect_to)
+                    try:
+                        login(username.value, password.value)
+                        if (redirect_to != ""):
+                            ui.navigate.to(redirect_to)
+                        else:
+                            ui.navigate.to("/")
+                    except Exception as e:
+                        ui.notify(f'An error occurred: {e}', type='negative')
 
                 username = ui.input("Username").props("autofocus").on("keydown.enter", lambda: password.run_method("focus"))
                 password = ui.input("Password", password=True, password_toggle_button=True).on("keydown.enter", submit_login)
@@ -48,6 +54,6 @@ def init():
             page_header("Welcome!", "Enter a username and a password that is at least 8 characters long.")
             with ui.card().classes("w-96 mx-auto"):
                 username = ui.input("Username").props("autofocus").on("keydown.enter", lambda: password.run_method("focus"))
-                password = ui.input("Password", password=True, password_toggle_button=True).on("keydown.enter", register)
+                password = ui.input("Password", password=True, password_toggle_button=True).on("keydown.enter", submit_register)
                 ui.button("Register", on_click=submit_register)
         

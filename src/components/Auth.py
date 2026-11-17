@@ -13,15 +13,25 @@ def hash_password(password, salt = urandom(32)):
     return (salt + hash).hex()
 
 def login(username, password):
+    login_err_message = "The provided username or password is incorrect."
+
+    # Get user and hashed password
     cur = db().cursor()
     cur.execute("SELECT pass FROM User WHERE User.user_id = :username", {"username": username})
     result = cur.fetchone()
+    if (result == None):
+        raise Exception(login_err_message)
     pass_bytes = bytes.fromhex(result[0])
-    if (hash_password(password, pass_bytes[:32]) == result[0]):
-        app.storage.user["authenticated"] = True
-        app.storage.user["id"] = username
-        return True
-    return False
+
+    # Checks if the password is correct.
+    # Only proceeds if there is not a mismatch between the user's hash and hashed password
+    if (hash_password(password, pass_bytes[:32]) != result[0]):
+        raise Exception(login_err_message)
+
+    # Successful login!
+    app.storage.user["authenticated"] = True
+    app.storage.user["id"] = username
+
 
 def register(username, password):
     database = db()
