@@ -90,9 +90,12 @@ def create_session():
         f"""
         SELECT session_id
         FROM ChatSession
-        WHERE user_id = "{app.storage.user["id"]}"
+        WHERE user_id = :user_id
         ORDER BY session_id DESC
-        """
+        """,
+        {
+            "user_id": app.storage.user["id"]
+        }
     )
     result = cur.fetchone()
     session_id = 0
@@ -103,8 +106,12 @@ def create_session():
         f"""
         INSERT INTO ChatSession
         (session_id, user_id)
-        VALUES ({session_id}, "{app.storage.user["id"]}")
-        """
+        VALUES (:session_id, :user_id)
+        """,
+        {
+            "session_id": session_id,
+            "user_id": app.storage.user["id"]
+        }
     )
     database.commit()
     return session_id
@@ -117,10 +124,14 @@ def log_message(session, message, agent):
         f"""
         SELECT message_id
         FROM ChatMessage
-        WHERE user_id = "{app.storage.user["id"]}"
-            AND session_id = {session}
+        WHERE user_id = :user_id
+            AND session_id = :session_id
         ORDER BY message_id DESC
-        """
+        """,
+        {
+            "user_id": app.storage.user["id"],
+            "session_id": session
+        }
     )
     
     result = cur.fetchone()
