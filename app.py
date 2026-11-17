@@ -25,7 +25,7 @@ from src.tools.init_db import init_db
 # If a user is not logged in, they will be redirected to /login
 
 # Non-authenticated users should be able to access these pages
-public_routes = {"/favicon.ico", "/login", "/register"}
+public_routes = {"/favicon.ico", "/login", "/register", "/"}
 
 # Non-authenticated users should be able to access paths with these prefixes
 # (/assets holds the static CSS used by the shared layout, including on /login)
