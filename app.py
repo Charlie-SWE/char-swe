@@ -19,6 +19,7 @@ from pages import (
     previous_matches,
 )
 
+from src.tools.init_db import init_db
 
 # USER AUTHENTICATION
 # If a user is not logged in, they will be redirected to /login
@@ -38,6 +39,8 @@ class AuthMiddleware(BaseHTTPMiddleware):
             return await call_next(request)
         return RedirectResponse(f'/login?redirect_to={path}')
 
+# Initialize Database
+init_db()
 
 def main():
     # Imports all of the CSS
