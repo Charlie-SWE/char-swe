@@ -193,9 +193,9 @@ def init(get_user=lambda: None):
                         ui.label("FOCUS").classes("font-mono-label").style(
                             "color:#7A849A"
                         )
-                        ui.label("Team & strategy management").classes("text-sm").style(
-                            "color:#55607A"
-                        )
+                        ui.label("Team and strategy management").classes(
+                            "text-sm"
+                        ).style("color:#55607A")
                 with ui.column().classes("gap-3 max-w-[680px]"):
                     for p in ABOUT:
                         ui.label(p).classes(
