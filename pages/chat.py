@@ -128,7 +128,7 @@ def generate_payload(text):
         previous_messages[current] = text
         current = (current + 1) % max
 
-    append_str = "\nCOntext from previous messages:**\n"
+    append_str = "\nContext from previous messages:**\n"
     for i,v in enumerate(previous_messages):
         append_str += f"{i+1}. {v}\n"
 
