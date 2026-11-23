@@ -86,7 +86,7 @@ def frame(active: str = "home", user: dict | None = None):
         ui.space()
         # Show for logged-in users only
         if app.storage.user.get("authenticated"):
-            ui.markdown(f"Logged in as **{app.storage.user.get("id")}**.")
+            ui.markdown(f"Logged in as **{app.storage.user.get("username")}**.")
             ui.button("Logout", on_click=logout)
         if user:
             with ui.column().classes("gap-0 items-end leading-tight"):
