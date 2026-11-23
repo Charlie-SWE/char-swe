@@ -85,6 +85,10 @@ def frame(active: str = "home", user: dict | None = None):
             ui.image("favicon.svg").classes("w-6")
         ui.label("Gaffer").classes("font-display text-xl font-extrabold text-white")
         ui.space()
+        # Show for logged-in users only
+        if app.storage.user.get("authenticated"):
+            ui.markdown(f"Logged in as **{app.storage.user.get("username")}**.")
+            ui.button("Logout", on_click=logout)
         if user:
             with ui.column().classes("gap-0 items-end leading-tight"):
                 ui.label(user.get("name", "")).classes(
@@ -96,11 +100,6 @@ def frame(active: str = "home", user: dict | None = None):
             ui.label(initials).classes(
                 "w-9 h-9 rounded-full flex items-center justify-center font-display font-bold text-sm"
             ).style(f"background:{PrimaryLightHex}; color:{SecondaryDarkHex}")
-
-        # Show for logged-in users only
-        if app.storage.user.get("authenticated"):
-            ui.markdown(f"Logged in as **{app.storage.user.get("id")}**.")
-            ui.button("Logout", on_click=logout)
 
     with (
         ui.left_drawer(value=True)
