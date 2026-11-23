@@ -79,18 +79,20 @@ def init():
                     
                     # column 1: x variables
                     with ui.column().classes('flex-1'):
-                        ui.label('1. Select X Variables').classes('font-display text-2xl font-bold')
+                        ui.label('1. Select training variables:').classes('font-display text-2xl font-bold')
+                        ui.label('What do you know?').classes('font-display text-m font-bold')
                         for stat in AVAILABLE_STATS:
                             x_checkboxes[stat] = ui.checkbox(txt_clean(stat), on_change=lambda: dynamic_input_section.refresh())
                             
                     # column 2: y variable
                     with ui.column().classes('flex-1'):
-                        ui.label('2. Select Target Y Variable').classes('font-display text-2xl font-bold')
+                        ui.label('2. Select target variables:').classes('font-display text-2xl font-bold')
+                        ui.label('What do you want to predict?').classes('font-display m font-bold')
                         y_select = ui.select(AVAILABLE_STATS, value='goals').classes('w-full xgboost-select')
 
                     # column 3: results
                     with ui.column().classes('flex-1'):
-                        ui.label('3. Enter Inputs & Predict').classes('font-display text-2xl font-bold')
+                        ui.label('3. Enter known variables and predict:').classes('font-display text-2xl font-bold')
                         
                         @ui.refreshable
                         def dynamic_input_section():
