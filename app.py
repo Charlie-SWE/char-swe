@@ -10,7 +10,9 @@ from pages import (
     view_data,
     weather,
     xgboost,
+    previous_matches,
 )
+
 
 def main():
     # Imports all of the CSS
@@ -23,6 +25,7 @@ def main():
     chat.init()
     view_data.init()
     weather.init()
+    previous_matches.init()
     app.add_static_files("/assets", "assets")
 
     # Loads the favicon

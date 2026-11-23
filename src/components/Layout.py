@@ -13,6 +13,7 @@ NAV_ITEMS = [
     ("chat", "Chat", "smart_toy", "/chat"),
     ("weather", "Weather", "cloud", "/weather"),
     ("xgboost", "XGBoost", "insights", "/xgboost"),
+    ("history", "Match History", "history", "/previous_matches"),
     ("settings", "Settings", "settings", "/settings"),
 ]
 
