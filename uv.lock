@@ -1,5 +1,5 @@
 version = 1
-revision = 5
+revision = 3
 requires-python = ">=3.14"
 resolution-markers = [
     "sys_platform == 'win32'",
@@ -267,8 +267,10 @@ requires-dist = [
     { name = "pytest", specifier = ">=9.1.1" },
     { name = "python-dotenv" },
     { name = "requests" },
+    { name = "scikit-learn" },
     { name = "scikit-learn", specifier = ">=1.9.1" },
     { name = "streamlit", specifier = ">=1.62.0" },
+    { name = "xgboost" },
     { name = "xgboost", specifier = ">=3.4.1" },
 ]
 
