@@ -1,3 +1,4 @@
+import asyncio
 import json
 import time
 
@@ -245,20 +246,24 @@ def run_tool(name, args):
     return f"Tool result for {name}: {result}"
 
 
-def ask_rocky(prompt: str, history: list[dict]):
+# on_tool is called with the tool name each time Rocky uses a tool,
+# so the chat can show it right away
+async def ask_rocky(prompt: str, history: list[dict], on_tool=None):
+    # These can make network calls, so they run off the event loop
+    context = await asyncio.to_thread(get_context)
+    llm = await asyncio.to_thread(get_llm)
+
     messages = PROMPT.invoke(
         {
-            "context": get_context(),
+            "context": context,
             "tools": build_tool_prompt(),
             "history": trim_history(to_messages(history)),
             "prompt": prompt,
         }
     ).to_messages()
 
-    llm = get_llm()
-
     for _ in range(MAX_TOOL_ROUNDS):
-        reply = llm.invoke(messages)
+        reply = await llm.ainvoke(messages)
         text = reply.text
 
         call = parse_tool_call(text)
@@ -271,7 +276,9 @@ def ask_rocky(prompt: str, history: list[dict]):
         if error:
             result = f"Tool error for {name}: {error}"
         else:
-            result = run_tool(name, args)
+            if on_tool is not None:
+                on_tool(name)
+            result = await asyncio.to_thread(run_tool, name, args)
 
         # Rocky has no tool role, so the result goes back as a user message
         messages.append(AIMessage(text))

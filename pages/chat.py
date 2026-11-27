@@ -1,6 +1,6 @@
 import openai
 import requests
-from nicegui import run, ui, app
+from nicegui import ui, app
 
 from src.components.Colors import (
     PrimaryDarkHex,
@@ -37,6 +37,13 @@ def bot_row():
                 f"color:{SecondaryLightHex}"
             )
     return col
+
+
+def tool_used_row(name: str):
+    with ui.row().classes("tool-used items-center gap-1 no-wrap"):
+        ui.icon("code").classes("tool-used-icon")
+        ui.label("Used LangChain tool")
+        ui.label(name).classes("tool-used-name")
 
 
 def bot_bubble(text: str):
@@ -134,6 +141,9 @@ def init():
 
             with messages:
                 user_bubble(prompt)
+                # Tool lines go here, above Rocky's icon and reply
+                tools_box = ui.column().classes("gap-1")
+                tools_box.set_visibility(False)
                 pending = thinking_row()
             scroll_down()
 
@@ -141,10 +151,18 @@ def init():
             # switches chats while Rocky is answering.
             reply_session = session_id
 
+            def show_tool(name):
+                if session_id != reply_session:
+                    return
+                tools_box.set_visibility(True)
+                with tools_box:
+                    tool_used_row(name)
+                scroll_down()
+
             try:
                 # Pass a copy of the earlier turns; the new prompt is sent
                 # separately so it isn't duplicated.
-                reply = await run.io_bound(ask_rocky, prompt, list(history))
+                reply = await ask_rocky(prompt, list(history), on_tool=show_tool)
             except (openai.APIConnectionError, requests.exceptions.RequestException):
                 ui.notify("Connection error.", type="negative")
             except openai.APIStatusError as e:
