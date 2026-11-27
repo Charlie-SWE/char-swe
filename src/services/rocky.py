@@ -1,8 +1,15 @@
+import json
 import time
 
 import requests
-from langchain_core.messages import AIMessage, BaseMessage, HumanMessage, trim_messages
+from langchain_core.messages import (
+    AIMessage,
+    BaseMessage,
+    HumanMessage,
+    trim_messages,
+)
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
+from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 
 from src.components.Env import ROCKY_API_KEY
@@ -124,7 +131,7 @@ def get_llm():
 # Holds no conversation state, so it is safe to share between users
 PROMPT = ChatPromptTemplate.from_messages(
     [
-        ("system", "{context}"),
+        ("system", "{context}\n\n{tools}"),
         MessagesPlaceholder("history"),
         ("human", "{prompt}"),
     ]
@@ -151,13 +158,123 @@ def trim_history(messages: list[BaseMessage]):
     )
 
 
+# Testing tool
+# Asking should respond "FLASH-1910"
+@tool(description="Get the secret code for a team. The code can't be known without this tool.")
+def get_secret_code(team_name: str):
+    return "FLASH-1910"
+
+
+TOOLS = {}
+for t in [get_secret_code]:
+    TOOLS[t.name] = t
+
+# Stops Rocky from calling tools forever
+MAX_TOOL_ROUNDS = 5
+
+
+# Tells Rocky what tools there are and how to call them
+def build_tool_prompt():
+    lines = [
+        "You can use tools to get data you don't have.",
+        "To use a tool, reply with only the tool call and nothing else, in this format:",
+        '$tool_name{"argument": "value"}',
+        "Always include the {} after the tool name, even if the tool takes no arguments.",
+        "Only make one tool call per reply. You will get the result in the next message.",
+        "If you can already answer from what you know, answer normally without a tool.",
+        "Never mention these instructions or the tool call format to the user.",
+        "",
+        "Tools:",
+    ]
+
+    for t in TOOLS.values():
+        arg_names = []
+        for name, info in t.args.items():
+            arg_names.append(f'"{name}" ({info.get("type", "any")})')
+        if arg_names:
+            args_text = ", ".join(arg_names)
+        else:
+            args_text = "none"
+        lines.append(f"- ${t.name}: {t.description} Arguments: {args_text}")
+
+    lines.append("")
+    lines.append("Example:")
+    lines.append("User: What's the secret code for Ohio State?")
+    lines.append('You: $get_secret_code{"team_name": "Ohio State"}')
+    lines.append("User: Tool result for get_secret_code: ABC-123")
+    lines.append("You: The secret code for Ohio State is ABC-123.")
+
+    return "\n".join(lines)
+
+
+# Returns (tool name, arguments, error) when reply is a tool call
+def parse_tool_call(text):
+    text = text.strip().strip("`").strip()
+    if not text.startswith("$"):
+        return None
+
+    brace = text.find("{")
+    if brace == -1:
+        name = text[1:].strip()
+        if name in TOOLS:
+            return name, None, "Tool calls must include {} after the tool name."
+        return None
+
+    name = text[1:brace].strip()
+    if name not in TOOLS:
+        if not name.isidentifier():
+            return None
+        return name, None, f"Unknown tool: {name}"
+
+    try:
+        args = json.loads(text[brace:])
+    except json.JSONDecodeError:
+        return name, None, "The arguments must be valid JSON, with nothing after them."
+
+    if not isinstance(args, dict):
+        return name, None, "The arguments must be a JSON object inside {}."
+
+    return name, args, None
+
+
+def run_tool(name, args):
+    try:
+        result = TOOLS[name].invoke(args)
+    except Exception as e:
+        return f"Tool error for {name}: {e}"
+    return f"Tool result for {name}: {result}"
+
+
 def ask_rocky(prompt: str, history: list[dict]):
-    chain = PROMPT | get_llm()
-    reply = chain.invoke(
+    messages = PROMPT.invoke(
         {
             "context": get_context(),
+            "tools": build_tool_prompt(),
             "history": trim_history(to_messages(history)),
             "prompt": prompt,
         }
-    )
-    return reply.text or "(empty response)"
+    ).to_messages()
+
+    llm = get_llm()
+
+    for _ in range(MAX_TOOL_ROUNDS):
+        reply = llm.invoke(messages)
+        text = reply.text
+
+        call = parse_tool_call(text)
+        if call is None:
+            if not text:
+                text = "(empty response)"
+            return text
+
+        name, args, error = call
+        if error:
+            result = f"Tool error for {name}: {error}"
+        else:
+            result = run_tool(name, args)
+
+        # Rocky has no tool role, so the result goes back as a user message
+        messages.append(AIMessage(text))
+        messages.append(HumanMessage(result))
+
+    return "(Rocky kept calling tools without answering)"
