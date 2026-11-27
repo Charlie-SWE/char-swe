@@ -13,7 +13,9 @@ dependencies = [
     "xgboost>=3.4.1",
     "scikit-learn>=1.9.1",
     "xgboost",
-    "scikit-learn"
+    "scikit-learn",
+    "langchain>=1.5.2",
+    "langchain-openai>=1.8.5",
 ]
 
 [dependency-groups]
