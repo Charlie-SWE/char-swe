@@ -107,7 +107,7 @@ def build_tool_prompt():
         f"Today's date is {date.today().isoformat()}.",
         "You can use tools to get data you don't have.",
         "To use a tool, reply with only the tool call and nothing else, in this format:",
-        '$tool_name{"argument": "value"}',
+        '@tool_name{"argument": "value"}',
         "Always include the {} after the tool name, even if the tool takes no arguments.",
         "Only make one tool call per reply. You will get the result in the next message.",
         "If you can already answer from what you know, answer normally without a tool.",
@@ -130,12 +130,12 @@ def build_tool_prompt():
             args_text = ", ".join(arg_names)
         else:
             args_text = "none"
-        lines.append(f"- ${t.name}: {t.description} Arguments: {args_text}")
+        lines.append(f"- @{t.name}: {t.description} Arguments: {args_text}")
 
     lines.append("")
     lines.append("Example:")
     lines.append("User: How many goals has Jane Smith scored?")
-    lines.append('You: $get_player_stats{"name": "Jane Smith"}')
+    lines.append('You: @get_player_stats{"name": "Jane Smith"}')
     lines.append('User: Tool result for get_player_stats: [{"first_name": "Jane", "last_name": "Smith", "goals": 4, "assists": 2}]')
     lines.append("You: Jane Smith has scored 4 goals, with 2 assists.")
 
@@ -145,12 +145,12 @@ def build_tool_prompt():
 # Returns (tool name, arguments, error) when reply is a tool call
 def parse_tool_call(text):
     text = text.strip().strip("`").strip()
-    if not text.startswith("$"):
+    if not text.startswith("@"):
         return None
 
-    # Rocky sometimes stops right after the $, so ask it to write the call again
-    if text == "$":
-        return "", None, "Your reply stopped after the $. Write the whole tool call again."
+    # If Rocky stops right after the @, ask it to write the call again
+    if text == "@":
+        return "", None, "Your reply stopped after the @. Write the whole tool call again."
 
     brace = text.find("{")
     if brace == -1:
