@@ -1,6 +1,5 @@
 import asyncio
 import json
-import time
 from datetime import date
 
 import requests
@@ -14,7 +13,6 @@ from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_openai import ChatOpenAI
 
 from src.components.Env import ROCKY_API_KEY
-from src.services.game_details import get_games
 from src.services.tools import TOOL_LIST
 
 BASE_URL = "https://rocky.cs.kent.edu/v1"
@@ -30,76 +28,11 @@ MAX_OUTPUT_TOKENS = 2048
 # Token budget
 HISTORY_TOKEN_BUDGET = 6000
 
-# Buffer zone to re-use context before refetching
-CONTEXT_TTL = 60 * 60 * 4
-
-# Giving rocky basic context
-def build_context(limit=10):
-    games = get_games(games=limit)
-    message = f"We are Kent State University. Our {limit} most recent games are:\n"
-
-    for g in games:
-
-        # Builds the message
-        message += f"We played "
-
-        # Home or away
-        if g["home"]:
-            message += "a home "
-        else:
-            message += "an away "
-        message += "game on "
-
-        # Handles the date part
-        if g["date"]:
-            day = g["date"].day
-            month = g["date"].month
-            year = g["date"].year
-            message += f"{month}/{day}/{year}."
-        else:
-            message += "an unknown date."
-
-        # Gets the score
-        our_score, their_score = g["score"]
-        if not g["home"]:
-            # If not home, it flips the order
-            our_score = g["score"][1]
-            their_score = g["score"][0]
-
-        # Win lose or draw
-        message += " We"
-        if our_score > their_score:
-            message += " won"
-        elif our_score < their_score:
-            message += " lost"
-        else:
-            message += " drew"
-
-        # Who we played against
-        message += " against"
-        if g["opponent"]:
-            message += f" {g["opponent"]}."
-        else:
-            message += " an unknown team."
-
-        # Score
-        message += f" Us {our_score} to their {their_score}."
-
-        message += "\n"
-
-    return message
-
-
-# Game data is the same for every user, so it is shared and cached
-_context = {"text": None, "fetched_at": 0.0}
-
-
-def get_context():
-    now = time.monotonic()
-    if _context["text"] is None or now - _context["fetched_at"] > CONTEXT_TTL:
-        _context["text"] = build_context()
-        _context["fetched_at"] = now
-    return _context["text"]
+# Who Rocky is. Game and player data comes from the tools in tools.py
+CONTEXT = (
+    "You are Rocky, the assistant for the Kent State University soccer team. "
+    "When the user says \"we\" or \"us\", they mean Kent State."
+)
 
 
 _model_id = None
@@ -256,13 +189,12 @@ def run_tool(name, args):
 # on_tool is called with the tool name each time Rocky uses a tool,
 # so the chat can show it right away
 async def ask_rocky(prompt: str, history: list[dict], on_tool=None):
-    # These can make network calls, so they run off the event loop
-    context = await asyncio.to_thread(get_context)
+    # Can make a network call the first time, so it runs off the event loop
     llm = await asyncio.to_thread(get_llm)
 
     messages = PROMPT.invoke(
         {
-            "context": context,
+            "context": CONTEXT,
             "tools": build_tool_prompt(),
             "history": trim_history(to_messages(history)),
             "prompt": prompt,
