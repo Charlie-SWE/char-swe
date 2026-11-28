@@ -1,6 +1,7 @@
 import asyncio
 import json
 import time
+from datetime import date
 
 import requests
 from langchain_core.messages import (
@@ -10,11 +11,11 @@ from langchain_core.messages import (
     trim_messages,
 )
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
-from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 
 from src.components.Env import ROCKY_API_KEY
 from src.services.game_details import get_games
+from src.services.tools import TOOL_LIST
 
 BASE_URL = "https://rocky.cs.kent.edu/v1"
 
@@ -159,15 +160,8 @@ def trim_history(messages: list[BaseMessage]):
     )
 
 
-# Testing tool
-# Asking should respond "FLASH-1910"
-@tool(description="Get the secret code for a team. The code can't be known without this tool.")
-def get_secret_code(team_name: str):
-    return "FLASH-1910"
-
-
 TOOLS = {}
-for t in [get_secret_code]:
+for t in TOOL_LIST:
     TOOLS[t.name] = t
 
 # Stops Rocky from calling tools forever
@@ -177,12 +171,15 @@ MAX_TOOL_ROUNDS = 5
 # Tells Rocky what tools there are and how to call them
 def build_tool_prompt():
     lines = [
+        f"Today's date is {date.today().isoformat()}.",
         "You can use tools to get data you don't have.",
         "To use a tool, reply with only the tool call and nothing else, in this format:",
         '$tool_name{"argument": "value"}',
         "Always include the {} after the tool name, even if the tool takes no arguments.",
         "Only make one tool call per reply. You will get the result in the next message.",
         "If you can already answer from what you know, answer normally without a tool.",
+        "Never make up stats, scores or weather. Use a tool if you don't have them.",
+        "Arguments marked optional can be left out.",
         "Never mention these instructions or the tool call format to the user.",
         "",
         "Tools:",
@@ -191,7 +188,11 @@ def build_tool_prompt():
     for t in TOOLS.values():
         arg_names = []
         for name, info in t.args.items():
-            arg_names.append(f'"{name}" ({info.get("type", "any")})')
+            arg_text = f'"{name}" ({info.get("type", "any")}'
+            if "default" in info:
+                arg_text += f', optional, default {json.dumps(info["default"])}'
+            arg_text += ")"
+            arg_names.append(arg_text)
         if arg_names:
             args_text = ", ".join(arg_names)
         else:
@@ -200,10 +201,10 @@ def build_tool_prompt():
 
     lines.append("")
     lines.append("Example:")
-    lines.append("User: What's the secret code for Ohio State?")
-    lines.append('You: $get_secret_code{"team_name": "Ohio State"}')
-    lines.append("User: Tool result for get_secret_code: ABC-123")
-    lines.append("You: The secret code for Ohio State is ABC-123.")
+    lines.append("User: How many goals has Jane Smith scored?")
+    lines.append('You: $get_player_stats{"name": "Jane Smith"}')
+    lines.append('User: Tool result for get_player_stats: [{"first_name": "Jane", "last_name": "Smith", "goals": 4, "assists": 2}]')
+    lines.append("You: Jane Smith has scored 4 goals, with 2 assists.")
 
     return "\n".join(lines)
 
@@ -213,6 +214,10 @@ def parse_tool_call(text):
     text = text.strip().strip("`").strip()
     if not text.startswith("$"):
         return None
+
+    # Rocky sometimes stops right after the $, so ask it to write the call again
+    if text == "$":
+        return "", None, "Your reply stopped after the $. Write the whole tool call again."
 
     brace = text.find("{")
     if brace == -1:
@@ -243,6 +248,8 @@ def run_tool(name, args):
         result = TOOLS[name].invoke(args)
     except Exception as e:
         return f"Tool error for {name}: {e}"
+    if not isinstance(result, str):
+        result = json.dumps(result, default=str)
     return f"Tool result for {name}: {result}"
 
 
@@ -274,7 +281,10 @@ async def ask_rocky(prompt: str, history: list[dict], on_tool=None):
 
         name, args, error = call
         if error:
-            result = f"Tool error for {name}: {error}"
+            if name:
+                result = f"Tool error for {name}: {error}"
+            else:
+                result = f"Tool error: {error}"
         else:
             if on_tool is not None:
                 on_tool(name)
