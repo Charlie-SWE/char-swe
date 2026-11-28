@@ -23,7 +23,7 @@ HAS_KEY = ROCKY_API_KEY != ""
 HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
 
 # Max reply tokens 
-MAX_OUTPUT_TOKENS = 2048
+MAX_OUTPUT_TOKENS = 8192
 
 # Token budget
 HISTORY_TOKEN_BUDGET = 6000
