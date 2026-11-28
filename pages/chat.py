@@ -1,6 +1,6 @@
+import openai
 import requests
-from nicegui import run, ui, app
-from datetime import date
+from nicegui import ui, app
 
 from src.components.Colors import (
     PrimaryDarkHex,
@@ -9,152 +9,8 @@ from src.components.Colors import (
     SecondaryLightHex,
 )
 from src.components.Layout import frame, page_body, page_header
-from src.components.Env import ROCKY_API_KEY
 from src.components.Auth import create_session, log_message, fetch_session_names, fetch_messages_from_session, delete_session
-from src.services.game_details import get_games
-
-BASE_URL = "https://rocky.cs.kent.edu/v1"
-
-# True if the user has a rocky API key
-HAS_KEY = ROCKY_API_KEY != ""
-
-HEADERS = {"Authorization": f"Bearer {ROCKY_API_KEY}"}
-
-
-# Giving rocky basic context
-def get_context(limit=10):
-
-    games = get_games(games=limit)
-    message = f"We are Kent State University. Our {limit} most recent games are:\n"
-
-    for g in games:
-
-
-        # Builds the message
-        message += f"We played "
-
-        # Home or away
-        if g["home"]:
-            message += "a home "
-        else:
-            message += "an away "
-        message += "game on "
-
-        # Handles the date part
-        if g["date"]:
-            day = g["date"].day
-            month = g["date"].month
-            year = g["date"].year
-            message += f"{month}/{day}/{year}."
-        else:
-            message += "an unknown date."
-
-        # Gets the score 
-        our_score, their_score = g["score"]
-        if not g["home"]:
-            # If not home, it flips the order
-            our_score = g["score"][1]
-            their_score = g["score"][0]
-
-        # Win lose or draw
-        message += " We"
-        if our_score > their_score:
-            message += " won"
-        elif our_score < their_score:
-            message += " lost"
-        else:
-            message += " drew"
-
-        # Who we played against
-        message += " against"
-        if g["opponent"]:
-            message += f" {g["opponent"]}."
-        else:
-            message += " an unknown team."
-
-        # Score
-        message += f" Us {our_score} to their {their_score}."
-
-        message += "\n"
-
-    return message
-
-
-context_test = get_context()
-
-# ---------- Rocky API ----------
-
-_model = None
-
-
-def get_model() -> str:
-    global _model
-    if _model is None:
-        r = requests.get(f"{BASE_URL}/models", headers=HEADERS, timeout=30)
-        r.raise_for_status()
-        _model = r.json()["data"][0]["id"]
-    return _model
-
-
-def extract_text(data: dict) -> str:
-    if data.get("output_text"):
-        return data["output_text"]
-    parts = []
-    for item in data.get("output", []):
-        if item.get("type") == "message":
-            for c in item.get("content", []):
-                if c.get("type") == "output_text":
-                    parts.append(c.get("text", ""))
-    return "".join(parts)
-
-
-# Context size
-max = 10
-previous_messages = [None] * max
-current = 0
-
-def generate_payload(text):
-    global previous_messages, max, current
-    if (max == None or current == None):
-        max = 10
-        current = 0
-        previous_messages[0] = text
-    else: 
-        previous_messages[current] = text
-        current = (current + 1) % max
-
-    append_str = "\nContext from previous messages:**\n"
-    for i,v in enumerate(previous_messages):
-        append_str += f"{i+1}. {v}\n"
-
-    text = text + append_str
-
-    return {
-        "model": get_model(),
-        "instructions": get_context(),
-        "input": text,
-        "max_output_tokens": 2048,
-        "store": False,
-    }
-
-
-def ask_rocky(text: str) -> str:
-    r = requests.post(
-        f"{BASE_URL}/responses",
-        headers=HEADERS,
-        json=generate_payload(text),
-        timeout=300,
-    )
-    try:
-        data = r.json()
-    except ValueError:
-        r.raise_for_status()
-        raise RuntimeError("Rocky returned an invalid response.")
-    err = data.get("error")
-    if err or not r.ok:
-        msg = err.get("message") if isinstance(err, dict) else err
-        raise RuntimeError(msg or f"HTTP {r.status_code}")
-    return extract_text(data) or "(empty response)"
+from src.services.rocky import HAS_KEY, ask_rocky
 
 
 # ---------- UI pieces ----------
@@ -181,6 +37,13 @@ def bot_row():
                 f"color:{SecondaryLightHex}"
             )
     return col
+
+
+def tool_used_row(name: str):
+    with ui.row().classes("tool-used items-center gap-1 no-wrap"):
+        ui.icon("code").classes("tool-used-icon")
+        ui.label("Used LangChain tool")
+        ui.label(name).classes("tool-used-name")
 
 
 def bot_bubble(text: str):
@@ -278,24 +141,42 @@ def init():
 
             with messages:
                 user_bubble(prompt)
+                # Tool lines go here, above Rocky's icon and reply
+                tools_box = ui.column().classes("gap-1")
+                tools_box.set_visibility(False)
                 pending = thinking_row()
-            history.append({"role": "user", "content": prompt})
-            log_message(session_id, prompt, "user")
             scroll_down()
 
+            # Remember which chat this reply belongs to, in case the user
+            # switches chats while Rocky is answering.
+            reply_session = session_id
+
+            def show_tool(name):
+                if session_id != reply_session:
+                    return
+                tools_box.set_visibility(True)
+                with tools_box:
+                    tool_used_row(name)
+                scroll_down()
+
             try:
-                reply = await run.io_bound(ask_rocky, prompt)
-            except requests.exceptions.RequestException:
-                history.pop()
+                # Pass a copy of the earlier turns; the new prompt is sent
+                # separately so it isn't duplicated.
+                reply = await ask_rocky(prompt, list(history), on_tool=show_tool)
+            except (openai.APIConnectionError, requests.exceptions.RequestException):
                 ui.notify("Connection error.", type="negative")
-            except RuntimeError as e:
-                history.pop()
-                ui.notify(f"Rocky returned an error: {e}", type="negative")
+            except openai.APIStatusError as e:
+                ui.notify(f"Rocky returned an error: {e.message}", type="negative")
             else:
-                history.append({"role": "assistant", "content": reply})
-                log_message(session_id, reply, "ai")
-                with messages:
-                    bot_bubble(reply)
+                # Only save the turn once Rocky has answered, so the database
+                # and the in-memory history always match.
+                log_message(reply_session, prompt, "user")
+                log_message(reply_session, reply, "ai")
+                if session_id == reply_session:
+                    history.append({"role": "user", "content": prompt})
+                    history.append({"role": "assistant", "content": reply})
+                    with messages:
+                        bot_bubble(reply)
             finally:
                 pending.delete()
                 busy["on"] = False

@@ -15,6 +15,19 @@
 .bubble-bot .nicegui-markdown p:last-child {
   margin: 0;
 }
+.tool-used {
+  color: #7a849a;
+  font-size: 13px;
+}
+.tool-used-icon {
+  font-size: 16px;
+}
+.tool-used-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  background: #f0f1f4;
+  border-radius: 4px;
+  padding: 0 4px;
+}
 .composer-box {
   background: #f4f5f7;
   border-radius: 12px;
